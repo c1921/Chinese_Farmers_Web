@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Chinese Farmer</title>
+	<script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
+	<link rel="stylesheet" href="style/style.css">
+</head>
+
+<body>
+	<div id="app" class="section">
+
+		<header class="mb-5">
+			<div class="is-flex is-justify-content-space-between">
+				<div>
+					<button class="button is-primary" @click="createCharacter">创建角色</button>
+					<button class="button is-link" @click="randomizeCharacter">随机创建角色</button>
+				</div>
+
+				<div>
+					<button @click="exportData" class="button">导出数据</button>
+					<button @click="triggerFileInput" class="button">导入数据</button>
+					<button @click="resetData" class="button is-danger">重置存档</button>
+
+					<input type="file" id="fileInput" @change="importData" style="display: none;" />
+				</div>
+			</div>
+		</header>
+
+		<div class="fixed-grid has-4-cols-desktop has-2-cols-tablet has-1-cols-mobile">
+			<div class="grid">
+
+				<div v-for="(card, index) in cards" :key="index">
+					<template v-if="!card.editing">
+						<div class="card">
+							<div class="card-content">
+								<div class="media">
+									<div class="media-content py-1">
+										<p class="title is-4">{{ card.title }}</p>
+									</div>
+								</div>
+							</div>
+							<footer class="card-footer">
+								<button @click="openModal(card, 'details')" class="card-footer-item">详情</button>
+								<button @click="openModal(card, 'edit')" class="card-footer-item">编辑</button>
+
+							</footer>
+						</div>
+					</template>
+				</div>
+			</div>
+		</div>
+		<!-- 模态窗口 -->
+		<div class="modal" :class="{ 'is-active': isModalOpen && currentCard }">
+			<div class="modal-background" @click="modalMode === 'details' ? closeModal() : null"></div>
+			<div class="modal-content" v-if="currentCard" @click.stop>
+				<!-- 详情视图 -->
+				<div v-if="modalMode === 'details'">
+					<div class="modal-card">
+						<header class="modal-card-head">
+							<p class="modal-card-title">{{ currentCard.title }}</p>
+							<button class="delete" aria-label="close" @click="closeModal"></button>
+						</header>
+						<section class="modal-card-body">
+							<p>姓名：{{ currentCard.title }}</p>
+							<p>年龄：{{ currentCard.age }}</p>
+							<p>性别：{{ currentCard.gender }}</p>
+							<p>健康：{{ currentCard.health }}</p>
+							<p>智力：{{ currentCard.abilities.intelligence }}</p>
+							<!-- 显示更多属性... -->
+						</section>
+						<footer class="modal-card-foot">
+							<div class="buttons">
+								<button @click="openModal(currentCard, 'edit')" class="button is-success">编辑</button>
+							</div>
+						</footer>
+					</div>
+				</div>
+
+				<!-- 编辑视图 -->
+				<div v-else-if="modalMode === 'edit'" class="box">
+					<p class="title is-4">编辑角色信息</p>
+					<div class="field">
+						<label class="label">姓名</label>
+						<div class="control">
+							<input class="input" type="text" v-model="currentCard.title" placeholder="输入角色姓名">
+						</div>
+					</div>
+					<!-- 添加更多属性的编辑选项 -->
+					<div class="field">
+						<label class="label">年龄</label>
+						<div class="control">
+							<input class="input" type="number" v-model="currentCard.age" placeholder="输入角色年龄">
+						</div>
+					</div>
+					<div class="field">
+						<label class="label">性别</label>
+						<div class="control">
+							<select class="input" v-model="currentCard.gender">
+								<option value="Male">男</option>
+								<option value="Female">女</option>
+							</select>
+						</div>
+					</div>
+					<div class="field">
+						<label class="label">健康</label>
+						<div class="control">
+							<input class="input" type="number" v-model="currentCard.health" placeholder="输入健康值">
+						</div>
+					</div>
+					<div class="field">
+						<label class="label">智力</label>
+						<div class="control">
+							<input class="input" type="number" v-model="currentCard.abilities.intelligence" placeholder="输入智力值">
+						</div>
+					</div>
+					<button @click="saveCard(currentCard)" class="button is-success">保存</button>
+					<button @click="cancelEdit(currentCard)" class="button">取消</button>
+					<button @click="deleteCard(currentCard)" class="button is-danger">删除</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="map">
+		<div v-for="(row, i) in map" :key="i">
+			<div v-for="(cell, j) in row" :key="j" :class="['cell', cell.type]"></div>
+		</div>
+	</div>
+
+	<script src="script/app.js"></script>
+	<script src="script/map.js"></script>
+	<script src="https://kit.fontawesome.com/956b802913.js" crossorigin="anonymous"></script>
+</body>
+
+</html>
