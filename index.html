@@ -123,15 +123,17 @@
 				</div>
 			</div>
 		</div>
-	</div>
-	<div id="map">
-		<div v-for="(row, i) in map" :key="i">
-			<div v-for="(cell, j) in row" :key="j" :class="['cell', cell.type]"></div>
+		<div id="map">
+			<div v-for="(row, rowIndex) in map" :key="rowIndex" class="map-row">
+				<div v-for="(cell, cellIndex) in row" :key="cellIndex" :class="['cell', cell.type]"></div>
+			</div>
 		</div>
-	</div>
 
-	<script src="script/app.js"></script>
+	</div>
+	
 	<script src="script/map.js"></script>
+	<script src="script/app.js"></script>
+	
 	<script src="https://kit.fontawesome.com/956b802913.js" crossorigin="anonymous"></script>
 </body>
 

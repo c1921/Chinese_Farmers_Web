@@ -33,25 +33,8 @@ new Vue({
 		isModalOpen: false,
 		modalMode: '', // 可以是 'edit' 或 'details'
 		isNewCard: false, // 标记是否为新建
+		map: generateMap(), // 在应用的 data 属性中初始化地图
 	},
-
-	mounted() {
-		this.$nextTick(() => {
-			// 此处确保DOM已经渲染完毕
-			const fileInput = document.querySelector("#file-name input[type=file]");
-			if (fileInput) {
-				fileInput.onchange = () => {
-					if (fileInput.files.length > 0) {
-						const fileName = document.querySelector("#file-name .file-name");
-						fileName.textContent = fileInput.files[0].name;
-					}
-				};
-			} else {
-				console.error('File input element not found!');
-			}
-		});
-	},
-
 	created() {
 		// 打开数据库并获取所有数据
 		openDB().then(db => {
@@ -263,6 +246,9 @@ new Vue({
 					console.error('清空数据时出错。');
 				};
 			}
+		},
+		regenerateMap() {
+			this.map = generateMap();  // 重新生成地图的方法
 		},
 	}
 });

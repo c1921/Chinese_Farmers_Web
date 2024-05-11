@@ -1,0 +1,25 @@
+.map-row {
+    display: flex;
+}
+
+.cell {
+    width: 30px;
+    height: 30px;
+    border: 1px solid black;
+}
+
+.cell.grass {
+    background-color: green;
+}
+
+.cell.water {
+    background-color: blue;
+}
+
+.cell.forest {
+    background-color: darkgreen;
+}
+
+.cell.mountain {
+    background-color: grey;
+}
