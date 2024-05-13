@@ -33,6 +33,8 @@ new Vue({
 		seed: null,  // 种子初始为空
 		tempSeed: null,  // 从输入框获取的临时种子值
 		map: [],
+		surname: [],
+		givenName: [],
 	},
 	created() {
 		// 尝试从 localStorage 中加载种子值
@@ -46,6 +48,7 @@ new Vue({
 			localStorage.setItem('gameSeed', this.seed);  // 存储默认种子到 localStorage
 		}
 		this.regenerateMap();  // 使用种子生成地图
+		this.loadName();
 	},
 	methods: {
 		createCharacter() {
@@ -93,9 +96,27 @@ new Vue({
 			const genders = ["Male", "Female"];
 			character.gender = genders[Math.floor(Math.random() * genders.length)]; // 随机选取性别
 		},
+		loadName() {
+			// 加载姓氏
+			fetch('public/data/surname.json')
+				.then(response => response.json())
+				.then(data => {
+					this.surname = data;
+				})
+				.catch(error => console.error('Failed to load surname:', error));
+
+			// 加载名字
+			fetch('public/data/givenName.json')
+				.then(response => response.json())
+				.then(data => {
+					this.givenName = data;
+				})
+				.catch(error => console.error('Failed to load givenName:', error));
+		},
 		generateRandomName() {
-			const names = ["张三", "李四", "王五", "赵六", "周七"];
-			return names[Math.floor(Math.random() * names.length)];
+			const randomSurname = this.surname[Math.floor(Math.random() * this.surname.length)];
+			const randomGivenName = this.givenName[Math.floor(Math.random() * this.givenName.length)];
+			return randomSurname + randomGivenName;
 		},
 		pickRandomTraits() {
 			const traits = ["勤劳", "懒惰", "诚实", "狡猾", "乐观", "悲观"];
@@ -259,6 +280,7 @@ new Vue({
 			this.seed = this.tempSeed;  // 更新实际种子为临时种子
 			localStorage.setItem('gameSeed', this.seed);  // 更新 localStorage 中的种子值
 			this.map = generateMap(this.seed);  // 使用更新后的种子重新生成地图
-		}
+		},
+		
 	},
 });
