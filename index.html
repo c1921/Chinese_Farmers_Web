@@ -2,37 +2,51 @@
 <html lang="zh-CN">
 
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<title>Chinese Farmer</title>
 	<script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
-	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
-	<link rel="stylesheet" href="style/style.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css" />
+	<link rel="stylesheet" href="style/style.css" />
 </head>
 
 <body>
 	<div id="app" class="section">
-
 		<header class="mb-5">
 			<div class="is-flex is-justify-content-space-between">
 				<div>
-					<button class="button is-primary" @click="createCharacter">创建角色</button>
-					<button class="button is-link" @click="randomizeCharacter">随机创建角色</button>
+					<button class="button is-primary" @click="createCharacter">
+						创建角色
+					</button>
+					<button class="button is-link" @click="randomizeCharacter">
+						随机创建角色
+					</button>
+					<div class="field">
+						<label for="seedInput" class="label">随机种子：</label>
+						<div class="control">
+							<input type="number" id="seedInput" v-model="tempSeed" min="1" class="input" placeholder="Enter a positive integer">
+						</div>
+					</div>
+					<button class="button" @click="regenerateMap">生成新地图</button>
+				</div>
+				<div>
+					当前种子：<strong>{{ seed }}</strong>
 				</div>
 
 				<div>
 					<button @click="exportData" class="button">导出数据</button>
 					<button @click="triggerFileInput" class="button">导入数据</button>
-					<button @click="resetData" class="button is-danger">重置存档</button>
+					<button @click="resetData" class="button is-danger">
+						重置存档
+					</button>
 
-					<input type="file" id="fileInput" @change="importData" style="display: none;" />
+					<input type="file" id="fileInput" @change="importData" style="display: none" />
 				</div>
 			</div>
 		</header>
 
 		<div class="fixed-grid has-4-cols-desktop has-2-cols-tablet has-1-cols-mobile">
 			<div class="grid">
-
 				<div v-for="(card, index) in cards" :key="index">
 					<template v-if="!card.editing">
 						<div class="card">
@@ -44,9 +58,12 @@
 								</div>
 							</div>
 							<footer class="card-footer">
-								<button @click="openModal(card, 'details')" class="card-footer-item">详情</button>
-								<button @click="openModal(card, 'edit')" class="card-footer-item">编辑</button>
-
+								<button @click="openModal(card, 'details')" class="card-footer-item">
+									详情
+								</button>
+								<button @click="openModal(card, 'edit')" class="card-footer-item">
+									编辑
+								</button>
 							</footer>
 						</div>
 					</template>
@@ -74,7 +91,9 @@
 						</section>
 						<footer class="modal-card-foot">
 							<div class="buttons">
-								<button @click="openModal(currentCard, 'edit')" class="button is-success">编辑</button>
+								<button @click="openModal(currentCard, 'edit')" class="button is-success">
+									编辑
+								</button>
 							</div>
 						</footer>
 					</div>
@@ -86,14 +105,14 @@
 					<div class="field">
 						<label class="label">姓名</label>
 						<div class="control">
-							<input class="input" type="text" v-model="currentCard.title" placeholder="输入角色姓名">
+							<input class="input" type="text" v-model="currentCard.title" placeholder="输入角色姓名" />
 						</div>
 					</div>
 					<!-- 添加更多属性的编辑选项 -->
 					<div class="field">
 						<label class="label">年龄</label>
 						<div class="control">
-							<input class="input" type="number" v-model="currentCard.age" placeholder="输入角色年龄">
+							<input class="input" type="number" v-model="currentCard.age" placeholder="输入角色年龄" />
 						</div>
 					</div>
 					<div class="field">
@@ -108,18 +127,25 @@
 					<div class="field">
 						<label class="label">健康</label>
 						<div class="control">
-							<input class="input" type="number" v-model="currentCard.health" placeholder="输入健康值">
+							<input class="input" type="number" v-model="currentCard.health" placeholder="输入健康值" />
 						</div>
 					</div>
 					<div class="field">
 						<label class="label">智力</label>
 						<div class="control">
-							<input class="input" type="number" v-model="currentCard.abilities.intelligence" placeholder="输入智力值">
+							<input class="input" type="number" v-model="currentCard.abilities.intelligence"
+								placeholder="输入智力值" />
 						</div>
 					</div>
-					<button @click="saveCard(currentCard)" class="button is-success">保存</button>
-					<button @click="cancelEdit(currentCard)" class="button">取消</button>
-					<button @click="deleteCard(currentCard)" class="button is-danger">删除</button>
+					<button @click="saveCard(currentCard)" class="button is-success">
+						保存
+					</button>
+					<button @click="cancelEdit(currentCard)" class="button">
+						取消
+					</button>
+					<button @click="deleteCard(currentCard)" class="button is-danger">
+						删除
+					</button>
 				</div>
 			</div>
 		</div>
@@ -128,14 +154,13 @@
 				<div v-for="(cell, cellIndex) in row" :key="cellIndex" :class="['cell', cell.type]"></div>
 			</div>
 		</div>
-
 	</div>
-	
+
 	<script src="script/map.js"></script>
 	<script src="script/RandomSeed.js"></script>
-	
+
 	<script src="script/app.js"></script>
-	
+
 	<script src="https://kit.fontawesome.com/956b802913.js" crossorigin="anonymous"></script>
 </body>
 

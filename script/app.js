@@ -30,16 +30,22 @@ new Vue({
 		isModalOpen: false,
 		modalMode: "", // 可以是 'edit' 或 'details'
 		isNewCard: false, // 标记是否为新建
-		seed: 12345, // 可以是任何整数
+		seed: null,  // 种子初始为空
+		tempSeed: null,  // 从输入框获取的临时种子值
 		map: [],
 	},
 	created() {
-		// 打开数据库并获取所有数据
-		openDB().then((db) => {
-			this.db = db;
-			this.getCards();
-		});
-		this.regenerateMap(); // 初始化时生成地图
+		// 尝试从 localStorage 中加载种子值
+		const savedSeed = localStorage.getItem('gameSeed');
+		if (savedSeed) {
+			this.seed = parseInt(savedSeed);  // 使用保存的种子
+			this.tempSeed = this.seed;  // 确保输入框显示正确的种子
+		} else {
+			this.seed = 12345;  // 默认种子
+			this.tempSeed = this.seed;
+			localStorage.setItem('gameSeed', this.seed);  // 存储默认种子到 localStorage
+		}
+		this.regenerateMap();  // 使用种子生成地图
 	},
 	methods: {
 		createCharacter() {
@@ -250,7 +256,9 @@ new Vue({
 			}
 		},
 		regenerateMap() {
-			this.map = generateMap(this.seed); // 使用当前种子重新生成地图
-		},
+			this.seed = this.tempSeed;  // 更新实际种子为临时种子
+			localStorage.setItem('gameSeed', this.seed);  // 更新 localStorage 中的种子值
+			this.map = generateMap(this.seed);  // 使用更新后的种子重新生成地图
+		}
 	},
 });
