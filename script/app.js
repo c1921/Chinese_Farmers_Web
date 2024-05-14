@@ -8,6 +8,8 @@ new Vue({
 		femaleGivenNames: [],
 		personalities: [],
 		traits: [],
+		currentDate: new Date(1840, 0, 1), // 初始化日期为2024年1月1日
+		timer: null,
 		hoveredAbility: null,
 		hoverStyle: {
 			top: '0px',
@@ -123,6 +125,27 @@ new Vue({
 		updateHoverPosition(event) {
 			this.hoverStyle.top = `${event.clientY + 10}px`;
 			this.hoverStyle.left = `${event.clientX + 10}px`;
+		},
+		toggleTimer() {
+			if (this.timer) {
+				clearInterval(this.timer);
+				this.timer = null;
+			} else {
+				this.timer = setInterval(this.updateDate, 500); // 每秒更新一次日期
+			}
+		},
+		updateDate() {
+			const newDate = new Date(this.currentDate);
+			newDate.setDate(newDate.getDate() + 1); // 日期加一天
+			this.currentDate = newDate;
+		}
+	},
+	computed: {
+		formattedDate() {
+			const year = this.currentDate.getFullYear();
+			const month = String(this.currentDate.getMonth() + 1).padStart(2, '0');
+			const day = String(this.currentDate.getDate()).padStart(2, '0');
+			return `${year} 年 ${month} 月 ${day} 日`;
 		}
 	},
 	async mounted() {
