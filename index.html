@@ -24,19 +24,31 @@
 			<p>魅力: {{ selectedCharacter.abilities.charisma }}</p>
 			<p>性格: {{ selectedCharacter.personality }}</p>
 			<p>特质: {{ selectedCharacter.traits.join(', ') }}</p>
+			<p>父母: <span v-for="parent in selectedCharacter.parents" :key="parent.id">
+					<a href="#" @click="selectCharacter(parent)">{{ parent.familyName }} {{ parent.givenName }}</a>
+				</span></p>
+			<p>配偶: <span v-for="spouse in selectedCharacter.spouses" :key="spouse.id">
+					<a href="#" @click="selectCharacter(spouse)">{{ spouse.familyName }} {{ spouse.givenName }}</a>
+				</span></p>
+			<p>子女: <span v-for="child in selectedCharacter.children" :key="child.id">
+					<a href="#" @click="selectCharacter(child)">{{ child.familyName }} {{ child.givenName }}</a>
+				</span></p>
 		</div>
 	
 		<!-- 家庭列表，每个家庭成员只显示名称 -->
 		<div v-for="family in families" :key="family.id" class="family box">
 			<p class="title is-6">Family {{ family.name }}</p>
 			<div class="columns">
-				<div class="column button" v-for="character in family.members" :key="character.givenName"
-					@click="selectCharacter(character, family)">
+				<div class="column button" v-for="character in family.members" :key="character.id"
+					@click="selectCharacter(character)">
 					{{ character.familyName }} {{ character.givenName }}
 				</div>
 			</div>
 		</div>
 	</div>
+
+
+
 
 	<script src="script/app.js"></script>
 
