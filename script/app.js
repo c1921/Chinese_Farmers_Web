@@ -7,7 +7,12 @@ new Vue({
 		maleGivenNames: [],
 		femaleGivenNames: [],
 		personalities: [],
-		traits: []
+		traits: [],
+		hoveredAbility: null,
+		hoverStyle: {
+			top: '0px',
+			left: '0px'
+		}
 	},
 	methods: {
 		getRandomInt(min, max) {
@@ -108,10 +113,24 @@ new Vue({
 		},
 		selectCharacter(character) {
 			this.selectedCharacter = character;
+		},
+		showDetails(ability) {
+			this.hoveredAbility = ability;
+		},
+		hideDetails() {
+			this.hoveredAbility = null;
+		},
+		updateHoverPosition(event) {
+			this.hoverStyle.top = `${event.clientY + 10}px`;
+			this.hoverStyle.left = `${event.clientX + 10}px`;
 		}
 	},
 	async mounted() {
 		await this.fetchNames();
 		this.generateFamilies();
+		document.addEventListener('mousemove', this.updateHoverPosition);
+	},
+	beforeDestroy() {
+		document.removeEventListener('mousemove', this.updateHoverPosition);
 	}
 });
