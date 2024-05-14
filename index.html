@@ -16,12 +16,25 @@
 		<div>{{ formattedDate }}</div>
 		<button @click="toggleTimer">{{ timer ? '暂停' : '开始' }}</button>
 	
+		<!-- 地图显示 -->
+		<div class="map">
+			<div v-for="(row, rowIndex) in map" :key="rowIndex" class="row">
+				<div v-for="(tile, colIndex) in row" :key="colIndex" :class="['tile', tile.type]"
+					@mouseover="showTileDetails(tile)" @mouseleave="hideTileDetails">
+					{{ tile.fertility.toFixed(0) }}
+				</div>
+			</div>
+		</div>
+	
 		<!-- 角色栏，显示当前选中的角色详细信息 -->
 		<div v-if="selectedCharacter" class="selected-character box">
 			<p class="title is-5">{{ selectedCharacter.familyName }} {{ selectedCharacter.givenName }}</p>
 			<p>出生日期: {{ selectedCharacter.birthDate }}</p>
 			<p>年龄: {{ selectedCharacter.age }}</p>
 			<p>性别: {{ selectedCharacter.gender }}</p>
+			<p>家庭土地数量: {{ selectedCharacter.family.landCount }}</p>
+			<p>家庭平均肥沃度: {{ selectedCharacter.family.averageFertility.toFixed(2) }}</p>
+			<p>家庭粮食产出: {{ selectedCharacter.family.foodOutput.toFixed(2) }}</p>
 			<p @mouseover="showDetails('social')" @mouseleave="hideDetails">
 				社交: {{ selectedCharacter.abilities.social.total }}
 			</p>
@@ -54,6 +67,12 @@
 			</p>
 		</div>
 	
+		<!-- 地块悬浮窗 -->
+		<div v-if="hoveredTile" :style="hoverStyle" class="hover-details">
+			<p>归属家庭: {{ hoveredTile.familyName }}</p>
+			<p>肥沃度: {{ hoveredTile.fertility.toFixed(2) }}</p>
+		</div>
+	
 		<!-- 家庭列表，每个家庭成员只显示名称 -->
 		<div v-for="family in families" :key="family.id" class="family box">
 			<p class="title is-6">Family {{ family.name }}</p>
@@ -65,6 +84,9 @@
 			</div>
 		</div>
 	</div>
+
+
+
 
 
 

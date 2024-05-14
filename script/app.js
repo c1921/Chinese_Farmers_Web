@@ -11,10 +11,13 @@ new Vue({
 		currentDate: new Date(1840, 0, 1), // 初始化日期为1840年1月1日
 		timer: null,
 		hoveredAbility: null,
+		hoveredTile: null,
 		hoverStyle: {
 			top: '0px',
 			left: '0px'
-		}
+		},
+		map: [],
+		mapSize: 10 // 地图的尺寸，例如10x10
 	},
 	methods: {
 		getRandomInt(min, max) {
@@ -98,19 +101,35 @@ new Vue({
 				familyId: family.id,
 				parents: [],
 				spouses: [],
-				children: []
+				children: [],
+				family: family
 			};
 		},
 		generateFamily(id) {
 			const familyName = this.familyNames[id - 1];
-			const members = [];
+			const family = {
+				id: id,
+				name: familyName,
+				members: [],
+				land: [],
+				get landCount() {
+					return this.land.length;
+				},
+				get averageFertility() {
+					return Math.floor((this.land.reduce((sum, tile) => sum + tile.fertility, 0) / this.land.length) * 100) / 100 || 0;
+				},
+				get foodOutput() {
+					const totalPhysical = this.members.reduce((sum, member) => sum + member.abilities.physical.total, 0);
+					return this.landCount * this.averageFertility * totalPhysical;
+				}
+			};
 
 			// Generate parents (one male and one female)
 			const parent1BirthDate = this.getRandomDate(1790, 1809); // 生成父母的出生日期在1790到1809年之间
 			const parent2BirthDate = this.getRandomDate(1790, 1809);
-			const parent1 = this.generateCharacter({ id: id, name: familyName }, parent1BirthDate, "Male");
-			const parent2 = this.generateCharacter({ id: id, name: familyName }, parent2BirthDate, "Female");
-			members.push(parent1, parent2);
+			const parent1 = this.generateCharacter(family, parent1BirthDate, "Male");
+			const parent2 = this.generateCharacter(family, parent2BirthDate, "Female");
+			family.members.push(parent1, parent2);
 			parent1.spouses.push(parent2);
 			parent2.spouses.push(parent1);
 
@@ -118,24 +137,52 @@ new Vue({
 			const numChildren = this.getRandomInt(0, 3);
 			for (let i = 0; i < numChildren; i++) {
 				const childBirthDate = this.getRandomDate(1810, 1839); // 生成子女的出生日期在1810到1839年之间
-				const child = this.generateCharacter({ id: id, name: familyName }, childBirthDate);
+				const child = this.generateCharacter(family, childBirthDate);
 				child.parents.push(parent1, parent2);
 				parent1.children.push(child);
 				parent2.children.push(child);
-				members.push(child);
+				family.members.push(child);
 			}
 
-			return {
-				id: id,
-				name: familyName,
-				members: members
-			};
+			return family;
 		},
 		generateFamilies() {
 			this.families = Array.from({ length: 4 }, (_, i) => this.generateFamily(i + 1));
+			this.allocateLand();
+		},
+		generateMap() {
+			this.map = Array.from({ length: this.mapSize }, (_, rowIndex) =>
+				Array.from({ length: this.mapSize }, (_, colIndex) => ({
+					type: Math.random() > 0.2 ? 'land' : 'water',
+					fertility: this.getRandomInt(1, 10) + Math.random(), // 保留小数
+					row: rowIndex,
+					col: colIndex,
+					familyName: ''
+				}))
+			);
+		},
+		allocateLand() {
+			const landTiles = this.map.flat().filter(tile => tile.type === 'land');
+			const totalFamilies = this.families.length;
+			let familyIndex = 0;
+
+			while (landTiles.length > 0) {
+				const randomIndex = this.getRandomInt(0, landTiles.length - 1);
+				const allocatedLand = landTiles.splice(randomIndex, 1)[0];
+				this.families[familyIndex].land.push(allocatedLand);
+				allocatedLand.familyName = this.families[familyIndex].name;
+				familyIndex = (familyIndex + 1) % totalFamilies;
+			}
 		},
 		selectCharacter(character) {
 			this.selectedCharacter = character;
+		},
+		showTileDetails(tile) {
+			this.hoveredTile = tile;
+			this.updateHoverPosition(event);
+		},
+		hideTileDetails() {
+			this.hoveredTile = null;
 		},
 		showDetails(ability) {
 			this.hoveredAbility = ability;
@@ -178,6 +225,7 @@ new Vue({
 	},
 	async mounted() {
 		await this.fetchNames();
+		this.generateMap();
 		this.generateFamilies();
 		document.addEventListener('mousemove', this.updateHoverPosition);
 	},
