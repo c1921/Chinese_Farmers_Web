@@ -35,6 +35,7 @@
 			<p>家庭土地数量: {{ selectedCharacter.family.landCount }}</p>
 			<p>家庭平均肥沃度: {{ selectedCharacter.family.averageFertility.toFixed(2) }}</p>
 			<p>家庭粮食产出: {{ selectedCharacter.family.foodOutput.toFixed(2) }}</p>
+			<p>家庭粮食库存: {{ selectedCharacter.family.foodStock.toFixed(2) }}</p>
 			<p @mouseover="showDetails('social')" @mouseleave="hideDetails">
 				社交: {{ selectedCharacter.abilities.social.total }}
 			</p>
@@ -84,6 +85,8 @@
 			</div>
 		</div>
 	</div>
+
+
 
 
 

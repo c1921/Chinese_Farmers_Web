@@ -112,6 +112,7 @@ new Vue({
 				name: familyName,
 				members: [],
 				land: [],
+				foodStock: 0,
 				get landCount() {
 					return this.land.length;
 				},
@@ -121,6 +122,13 @@ new Vue({
 				get foodOutput() {
 					const totalPhysical = this.members.reduce((sum, member) => sum + member.abilities.physical.total, 0);
 					return this.landCount * this.averageFertility * totalPhysical;
+				},
+				updateFoodStock() {
+					this.foodStock += this.foodOutput;
+				},
+				consumeFood() {
+					const dailyConsumption = this.members.length * 2;
+					this.foodStock = Math.max(0, this.foodStock - dailyConsumption);
 				}
 			};
 
@@ -199,13 +207,25 @@ new Vue({
 				clearInterval(this.timer);
 				this.timer = null;
 			} else {
-				this.timer = setInterval(this.updateDate, 1000); // 每秒更新一次日期
+				this.timer = setInterval(this.updateDate, 10); // 每秒更新一次日期
 			}
 		},
 		updateDate() {
 			const newDate = new Date(this.currentDate);
 			newDate.setDate(newDate.getDate() + 1); // 日期加一天
 			this.currentDate = newDate;
+
+			// 每年7月1日增加家庭粮食库存
+			if (this.currentDate.getMonth() === 6 && this.currentDate.getDate() === 1) {
+				this.families.forEach(family => {
+					family.updateFoodStock();
+				});
+			}
+
+			// 每天消耗粮食
+			this.families.forEach(family => {
+				family.consumeFood();
+			});
 
 			// Update the age of all characters based on the new current date
 			this.families.forEach(family => {
