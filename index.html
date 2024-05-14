@@ -19,11 +19,35 @@
 			<p>所属家庭名称: {{ selectedCharacter.familyName }}</p>
 			<p>年龄: {{ selectedCharacter.age }}</p>
 			<p>性别: {{ selectedCharacter.gender }}</p>
-			<p>力量: {{ selectedCharacter.abilities.strength }}</p>
-			<p>智力: {{ selectedCharacter.abilities.intelligence }}</p>
-			<p>魅力: {{ selectedCharacter.abilities.charisma }}</p>
+			<p>社交: {{ selectedCharacter.abilities.social.total }}
+			<ul>
+				<li>基础值 {{ selectedCharacter.abilities.social.base }}</li>
+				<li v-for="(value, key) in selectedCharacter.abilities.social.effects" :key="key">{{ key }} {{ value }}</li>
+			</ul>
+			</p>
+			<p>体力: {{ selectedCharacter.abilities.physical.total }}
+			<ul>
+				<li>基础值 {{ selectedCharacter.abilities.physical.base }}</li>
+				<li v-for="(value, key) in selectedCharacter.abilities.physical.effects" :key="key">{{ key }} {{ value }}
+				</li>
+			</ul>
+			</p>
+			<p>判断: {{ selectedCharacter.abilities.judgment.total }}
+			<ul>
+				<li>基础值 {{ selectedCharacter.abilities.judgment.base }}</li>
+				<li v-for="(value, key) in selectedCharacter.abilities.judgment.effects" :key="key">{{ key }} {{ value }}
+				</li>
+			</ul>
+			</p>
+			<p>学习: {{ selectedCharacter.abilities.learning.total }}
+			<ul>
+				<li>基础值 {{ selectedCharacter.abilities.learning.base }}</li>
+				<li v-for="(value, key) in selectedCharacter.abilities.learning.effects" :key="key">{{ key }} {{ value }}
+				</li>
+			</ul>
+			</p>
 			<p>性格: {{ selectedCharacter.personality }}</p>
-			<p>特质: {{ selectedCharacter.traits.join(', ') }}</p>
+			<p>特质: <span v-for="trait in selectedCharacter.traits" :key="trait.name">{{ trait.name }}</span></p>
 			<p>父母: <span v-for="parent in selectedCharacter.parents" :key="parent.id">
 					<a href="#" @click="selectCharacter(parent)">{{ parent.familyName }} {{ parent.givenName }}</a>
 				</span></p>
@@ -46,6 +70,8 @@
 			</div>
 		</div>
 	</div>
+
+
 
 
 

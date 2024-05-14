@@ -26,10 +26,36 @@ new Vue({
 			this.personalities = await personalityResponse.json();
 			this.traits = await traitResponse.json();
 		},
+		applyTraitEffects(abilities, traits) {
+			const effects = {
+				social: { base: abilities.social, effects: {}, total: abilities.social },
+				physical: { base: abilities.physical, effects: {}, total: abilities.physical },
+				judgment: { base: abilities.judgment, effects: {}, total: abilities.judgment },
+				learning: { base: abilities.learning, effects: {}, total: abilities.learning }
+			};
+
+			traits.forEach(trait => {
+				const effect = trait.effects;
+				for (const key in effect) {
+					effects[key].effects[trait.name] = effect[key];
+					effects[key].total += effect[key];
+				}
+			});
+
+			return effects;
+		},
 		generateCharacter(family, minAge = 18, maxAge = 60, gender = null) {
 			const finalGender = gender || (Math.random() > 0.5 ? "Male" : "Female");
 			const givenNames = finalGender === "Male" ? this.maleGivenNames : this.femaleGivenNames;
 			const age = this.getRandomInt(minAge, maxAge);
+			const traits = this.traits.sort(() => 0.5 - Math.random()).slice(0, 2);
+			const abilities = {
+				social: this.getRandomInt(1, 10),
+				physical: this.getRandomInt(1, 10),
+				judgment: this.getRandomInt(1, 10),
+				learning: this.getRandomInt(1, 10)
+			};
+			const abilitiesWithEffects = this.applyTraitEffects(abilities, traits);
 
 			return {
 				id: Math.random().toString(36).substr(2, 9),
@@ -37,13 +63,9 @@ new Vue({
 				familyName: family.name,
 				age: age,
 				gender: finalGender === "Male" ? "男" : "女",
-				abilities: {
-					strength: this.getRandomInt(1, 10),
-					intelligence: this.getRandomInt(1, 10),
-					charisma: this.getRandomInt(1, 10)
-				},
+				abilities: abilitiesWithEffects,
 				personality: this.personalities[this.getRandomInt(0, this.personalities.length - 1)],
-				traits: this.traits.sort(() => 0.5 - Math.random()).slice(0, 2),
+				traits: traits,
 				familyId: family.id,
 				parents: [],
 				spouses: [],

@@ -1,6 +1,26 @@
 [
-  "聪明",
-  "强壮",
-  "狡猾",
-  "有魅力"
+  {
+    "name": "聪明",
+    "effects": {
+      "judgment": 2
+    }
+  },
+  {
+    "name": "强壮",
+    "effects": {
+      "physical": 2
+    }
+  },
+  {
+    "name": "狡猾",
+    "effects": {
+      "social": 2
+    }
+  },
+  {
+    "name": "有魅力",
+    "effects": {
+      "social": 2
+    }
+  }
 ]
