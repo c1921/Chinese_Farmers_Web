@@ -11,153 +11,34 @@
 </head>
 
 <body>
-	<div id="app" class="section">
-		<header class="mb-5">
-			<div class="is-flex is-justify-content-space-between">
-				<div>
-					<button class="button is-primary" @click="createCharacter">
-						创建角色
-					</button>
-					<button class="button is-link" @click="randomizeCharacter">
-						随机创建角色
-					</button>
-					<div class="field">
-						<label for="seedInput" class="label">随机种子：</label>
-						<div class="control">
-							<input type="number" id="seedInput" v-model="tempSeed" min="1" class="input" placeholder="Enter a positive integer">
-						</div>
-					</div>
-					<button class="button" @click="regenerateMap">生成新地图</button>
-				</div>
-				<div>
-					当前种子：<strong>{{ seed }}</strong>
-				</div>
 
-				<div>
-					<button @click="exportData" class="button">导出数据</button>
-					<button @click="triggerFileInput" class="button">导入数据</button>
-					<button @click="resetData" class="button is-danger">
-						重置存档
-					</button>
-
-					<input type="file" id="fileInput" @change="importData" style="display: none" />
-				</div>
-			</div>
-		</header>
-
-		<div class="fixed-grid has-4-cols-desktop has-2-cols-tablet has-1-cols-mobile">
-			<div class="grid">
-				<div v-for="(card, index) in cards" :key="index">
-					<template v-if="!card.editing">
-						<div class="card">
-							<div class="card-content">
-								<div class="media">
-									<div class="media-content py-1">
-										<p class="title is-4">{{ card.title }}</p>
-									</div>
-								</div>
-							</div>
-							<footer class="card-footer">
-								<button @click="openModal(card, 'details')" class="card-footer-item">
-									详情
-								</button>
-								<button @click="openModal(card, 'edit')" class="card-footer-item">
-									编辑
-								</button>
-							</footer>
-						</div>
-					</template>
-				</div>
-			</div>
+	<div id="app">
+		<!-- 角色栏，显示当前选中的角色详细信息 -->
+		<div v-if="selectedCharacter" class="selected-character box">
+			<p class="title is-5">{{ selectedCharacter.name }}</p>
+			<p>所属家庭名称: {{ selectedCharacter.familyName }}</p>
+			<p>年龄: {{ selectedCharacter.age }}</p>
+			<p>性别: {{ selectedCharacter.gender }}</p>
+			<p>力量: {{ selectedCharacter.abilities.strength }}</p>
+			<p>智力: {{ selectedCharacter.abilities.intelligence }}</p>
+			<p>魅力: {{ selectedCharacter.abilities.charisma }}</p>
+			<p>性格: {{ selectedCharacter.personality }}</p>
+			<p>特质: {{ selectedCharacter.traits.join(', ') }}</p>
 		</div>
-		<!-- 模态窗口 -->
-		<div class="modal" :class="{ 'is-active': isModalOpen && currentCard }">
-			<div class="modal-background" @click="modalMode === 'details' ? closeModal() : null"></div>
-			<div class="modal-content" v-if="currentCard" @click.stop>
-				<!-- 详情视图 -->
-				<div v-if="modalMode === 'details'">
-					<div class="modal-card">
-						<header class="modal-card-head">
-							<p class="modal-card-title">{{ currentCard.title }}</p>
-							<button class="delete" aria-label="close" @click="closeModal"></button>
-						</header>
-						<section class="modal-card-body">
-							<p>姓名：{{ currentCard.title }}</p>
-							<p>年龄：{{ currentCard.age }}</p>
-							<p>性别：{{ currentCard.gender }}</p>
-							<p>健康：{{ currentCard.health }}</p>
-							<p>智力：{{ currentCard.abilities.intelligence }}</p>
-							<!-- 显示更多属性... -->
-						</section>
-						<footer class="modal-card-foot">
-							<div class="buttons">
-								<button @click="openModal(currentCard, 'edit')" class="button is-success">
-									编辑
-								</button>
-							</div>
-						</footer>
-					</div>
+	
+		<!-- 家庭列表，每个家庭成员只显示名称 -->
+		<div v-for="family in families" :key="family.id" class="family box">
+			<p class="title is-6">Family {{ family.name }}</p>
+			<div class="columns">
+				<div class="column button" v-for="character in family.members" :key="character.name" @click="selectCharacter(character, family)">
+					{{ character.name }}
 				</div>
-
-				<!-- 编辑视图 -->
-				<div v-else-if="modalMode === 'edit'" class="box">
-					<p class="title is-4">编辑角色信息</p>
-					<div class="field">
-						<label class="label">姓名</label>
-						<div class="control">
-							<input class="input" type="text" v-model="currentCard.title" placeholder="输入角色姓名" />
-						</div>
-					</div>
-					<!-- 添加更多属性的编辑选项 -->
-					<div class="field">
-						<label class="label">年龄</label>
-						<div class="control">
-							<input class="input" type="number" v-model="currentCard.age" placeholder="输入角色年龄" />
-						</div>
-					</div>
-					<div class="field">
-						<label class="label">性别</label>
-						<div class="control">
-							<select class="input" v-model="currentCard.gender">
-								<option value="Male">男</option>
-								<option value="Female">女</option>
-							</select>
-						</div>
-					</div>
-					<div class="field">
-						<label class="label">健康</label>
-						<div class="control">
-							<input class="input" type="number" v-model="currentCard.health" placeholder="输入健康值" />
-						</div>
-					</div>
-					<div class="field">
-						<label class="label">智力</label>
-						<div class="control">
-							<input class="input" type="number" v-model="currentCard.abilities.intelligence"
-								placeholder="输入智力值" />
-						</div>
-					</div>
-					<button @click="saveCard(currentCard)" class="button is-success">
-						保存
-					</button>
-					<button @click="cancelEdit(currentCard)" class="button">
-						取消
-					</button>
-					<button @click="deleteCard(currentCard)" class="button is-danger">
-						删除
-					</button>
-				</div>
-			</div>
-		</div>
-		<div id="map">
-			<div v-for="(row, rowIndex) in map" :key="rowIndex" class="map-row">
-				<div v-for="(cell, cellIndex) in row" :key="cellIndex" :class="['cell', cell.type]"></div>
 			</div>
 		</div>
 	</div>
 
-	<script src="script/map.js"></script>
-	<script src="script/RandomSeed.js"></script>
+
+
 
 	<script src="script/app.js"></script>
 
