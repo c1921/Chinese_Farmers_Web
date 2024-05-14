@@ -8,7 +8,7 @@ new Vue({
 		femaleGivenNames: [],
 		personalities: [],
 		traits: [],
-		currentDate: new Date(1840, 0, 1), // 初始化日期为2024年1月1日
+		currentDate: new Date(1840, 0, 1), // 初始化日期为1840年1月1日
 		timer: null,
 		hoveredAbility: null,
 		hoverStyle: {
@@ -19,6 +19,18 @@ new Vue({
 	methods: {
 		getRandomInt(min, max) {
 			return Math.floor(Math.random() * (max - min + 1)) + min;
+		},
+		getRandomDate(startYear, endYear) {
+			const start = new Date(startYear, 0, 1);
+			const end = new Date(endYear, 11, 31);
+			const date = new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+			return date;
+		},
+		formatDate(date) {
+			const year = date.getFullYear();
+			const month = String(date.getMonth() + 1).padStart(2, '0');
+			const day = String(date.getDate()).padStart(2, '0');
+			return `${year}年${month}月${day}日`;
 		},
 		async fetchNames() {
 			const familyNameResponse = await fetch('public/data/familyName.json');
@@ -51,10 +63,18 @@ new Vue({
 
 			return effects;
 		},
-		generateCharacter(family, minAge = 18, maxAge = 60, gender = null) {
+		calculateAge(birthDate, currentDate) {
+			const birth = new Date(birthDate);
+			const age = currentDate.getFullYear() - birth.getFullYear();
+			const monthDiff = currentDate.getMonth() - birth.getMonth();
+			if (monthDiff < 0 || (monthDiff === 0 && currentDate.getDate() < birth.getDate())) {
+				return age - 1;
+			}
+			return age;
+		},
+		generateCharacter(family, birthDate, gender = null) {
 			const finalGender = gender || (Math.random() > 0.5 ? "Male" : "Female");
 			const givenNames = finalGender === "Male" ? this.maleGivenNames : this.femaleGivenNames;
-			const age = this.getRandomInt(minAge, maxAge);
 			const traits = this.traits.sort(() => 0.5 - Math.random()).slice(0, 2);
 			const abilities = {
 				social: this.getRandomInt(1, 10),
@@ -63,11 +83,13 @@ new Vue({
 				learning: this.getRandomInt(1, 10)
 			};
 			const abilitiesWithEffects = this.applyTraitEffects(abilities, traits);
+			const age = this.calculateAge(birthDate, this.currentDate);
 
 			return {
 				id: Math.random().toString(36).substr(2, 9),
 				givenName: givenNames[this.getRandomInt(0, givenNames.length - 1)],
 				familyName: family.name,
+				birthDate: this.formatDate(birthDate),
 				age: age,
 				gender: finalGender === "Male" ? "男" : "女",
 				abilities: abilitiesWithEffects,
@@ -84,8 +106,10 @@ new Vue({
 			const members = [];
 
 			// Generate parents (one male and one female)
-			const parent1 = this.generateCharacter({ id: id, name: familyName }, 30, 45, "Male");
-			const parent2 = this.generateCharacter({ id: id, name: familyName }, parent1.age - 20, parent1.age + 20, "Female");
+			const parent1BirthDate = this.getRandomDate(1790, 1809); // 生成父母的出生日期在1790到1809年之间
+			const parent2BirthDate = this.getRandomDate(1790, 1809);
+			const parent1 = this.generateCharacter({ id: id, name: familyName }, parent1BirthDate, "Male");
+			const parent2 = this.generateCharacter({ id: id, name: familyName }, parent2BirthDate, "Female");
 			members.push(parent1, parent2);
 			parent1.spouses.push(parent2);
 			parent2.spouses.push(parent1);
@@ -93,15 +117,12 @@ new Vue({
 			// Generate children and adjust parent ages
 			const numChildren = this.getRandomInt(0, 3);
 			for (let i = 0; i < numChildren; i++) {
-				const child = this.generateCharacter({ id: id, name: familyName }, parent1.age - 44, parent1.age - 16);
+				const childBirthDate = this.getRandomDate(1810, 1839); // 生成子女的出生日期在1810到1839年之间
+				const child = this.generateCharacter({ id: id, name: familyName }, childBirthDate);
 				child.parents.push(parent1, parent2);
 				parent1.children.push(child);
 				parent2.children.push(child);
 				members.push(child);
-
-				// Adjust parents' ages
-				parent1.age += 2;
-				parent2.age += 2;
 			}
 
 			return {
@@ -131,13 +152,20 @@ new Vue({
 				clearInterval(this.timer);
 				this.timer = null;
 			} else {
-				this.timer = setInterval(this.updateDate, 500); // 每秒更新一次日期
+				this.timer = setInterval(this.updateDate, 1000); // 每秒更新一次日期
 			}
 		},
 		updateDate() {
 			const newDate = new Date(this.currentDate);
 			newDate.setDate(newDate.getDate() + 1); // 日期加一天
 			this.currentDate = newDate;
+
+			// Update the age of all characters based on the new current date
+			this.families.forEach(family => {
+				family.members.forEach(member => {
+					member.age = this.calculateAge(new Date(member.birthDate.replace(/年|月/g, '-').replace(/日/, '')), this.currentDate);
+				});
+			});
 		}
 	},
 	computed: {
@@ -145,7 +173,7 @@ new Vue({
 			const year = this.currentDate.getFullYear();
 			const month = String(this.currentDate.getMonth() + 1).padStart(2, '0');
 			const day = String(this.currentDate.getDate()).padStart(2, '0');
-			return `${year} 年 ${month} 月 ${day} 日`;
+			return `${year}年${month}月${day}日`;
 		}
 	},
 	async mounted() {

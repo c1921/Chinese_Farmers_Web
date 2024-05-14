@@ -14,12 +14,12 @@
 	<div id="app">
 		<!-- 游戏世界时间显示 -->
 		<div>{{ formattedDate }}</div>
-		<button class="button" @click="toggleTimer">{{ timer ? '暂停' : '开始' }}</button>
+		<button @click="toggleTimer">{{ timer ? '暂停' : '开始' }}</button>
 	
 		<!-- 角色栏，显示当前选中的角色详细信息 -->
 		<div v-if="selectedCharacter" class="selected-character box">
 			<p class="title is-5">{{ selectedCharacter.familyName }} {{ selectedCharacter.givenName }}</p>
-			<p>所属家庭名称: {{ selectedCharacter.familyName }}</p>
+			<p>出生日期: {{ selectedCharacter.birthDate }}</p>
 			<p>年龄: {{ selectedCharacter.age }}</p>
 			<p>性别: {{ selectedCharacter.gender }}</p>
 			<p @mouseover="showDetails('social')" @mouseleave="hideDetails">
@@ -65,6 +65,8 @@
 			</div>
 		</div>
 	</div>
+
+
 
 
 	<script src="script/app.js"></script>
