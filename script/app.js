@@ -17,7 +17,8 @@ new Vue({
 			left: '0px'
 		},
 		map: [],
-		mapSize: 10 // 地图的尺寸，例如10x10
+		mapSize: 21, // 地图的尺寸，例如10x10
+		activeTab: 'Family',
 	},
 	methods: {
 		getRandomInt(min, max) {
@@ -39,13 +40,11 @@ new Vue({
 			const familyNameResponse = await fetch('public/data/familyName.json');
 			const maleGivenNameResponse = await fetch('public/data/maleGivenName.json');
 			const femaleGivenNameResponse = await fetch('public/data/femaleGivenName.json');
-			const personalityResponse = await fetch('public/data/personalities.json');
 			const traitResponse = await fetch('public/data/traits.json');
 
 			this.familyNames = await familyNameResponse.json();
 			this.maleGivenNames = await maleGivenNameResponse.json();
 			this.femaleGivenNames = await femaleGivenNameResponse.json();
-			this.personalities = await personalityResponse.json();
 			this.traits = await traitResponse.json();
 		},
 		applyTraitEffects(abilities, traits) {
@@ -96,7 +95,6 @@ new Vue({
 				age: age,
 				gender: finalGender === "Male" ? "男" : "女",
 				abilities: abilitiesWithEffects,
-				personality: this.personalities[this.getRandomInt(0, this.personalities.length - 1)],
 				traits: traits,
 				familyId: family.id,
 				parents: [],
@@ -155,20 +153,36 @@ new Vue({
 			return family;
 		},
 		generateFamilies() {
-			this.families = Array.from({ length: 4 }, (_, i) => this.generateFamily(i + 1));
+			this.families = Array.from({ length: 20 }, (_, i) => this.generateFamily(i + 1));
 			this.allocateLand();
 		},
 		generateMap() {
 			this.map = Array.from({ length: this.mapSize }, (_, rowIndex) =>
 				Array.from({ length: this.mapSize }, (_, colIndex) => ({
 					type: Math.random() > 0.2 ? 'land' : 'water',
-					fertility: this.getRandomInt(1, 10) + Math.random(), // 保留小数
+					fertility: this.generateNormalDistributedFertility(5, 1.5), // 使用正态分布生成肥力值
 					row: rowIndex,
 					col: colIndex,
 					familyName: ''
 				}))
 			);
 		},
+
+		generateNormalDistributedFertility(mean, stddev) {
+			// Box-Muller 变换生成正态分布随机数
+			let u1 = Math.random();
+			let u2 = Math.random();
+			let z = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
+			let fertility = mean + z * stddev;
+
+			// 四舍五入并确保肥力值在 1 到 10 之间
+			fertility = Math.round(fertility);
+			if (fertility < 1) fertility = 1;
+			if (fertility > 10) fertility = 10;
+
+			return fertility;
+		},
+
 		allocateLand() {
 			const landTiles = this.map.flat().filter(tile => tile.type === 'land');
 			const totalFamilies = this.families.length;
@@ -207,7 +221,7 @@ new Vue({
 				clearInterval(this.timer);
 				this.timer = null;
 			} else {
-				this.timer = setInterval(this.updateDate, 10); // 每秒更新一次日期
+				this.timer = setInterval(this.updateDate, 1000); // 每秒更新一次日期
 			}
 		},
 		updateDate() {
@@ -233,7 +247,10 @@ new Vue({
 					member.age = this.calculateAge(new Date(member.birthDate.replace(/年|月/g, '-').replace(/日/, '')), this.currentDate);
 				});
 			});
-		}
+		},
+		showTab(tab) {
+			this.activeTab = tab;
+		},
 	},
 	computed: {
 		formattedDate() {

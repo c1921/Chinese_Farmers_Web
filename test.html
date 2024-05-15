@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>显示不同的DIV</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css" />
+    <style>
+        .content {
+            display: none;
+        }
+
+        .content.active {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="tabs">
+        <ul>
+            <li class="is-active"><a onclick="showDiv('div1', this)">div1</a></li>
+            <li><a onclick="showDiv('div2', this)">div2</a></li>
+            <li><a onclick="showDiv('div3', this)">div3</a></li>
+        </ul>
+    </div>
+
+    <div id="container">
+        <div id="div1" class="content active">这是DIV 1的内容</div>
+        <div id="div2" class="content">这是DIV 2的内容</div>
+        <div id="div3" class="content">这是DIV 3的内容</div>
+    </div>
+
+    <script>
+        function showDiv(divId, element) {
+            // 隐藏所有内容
+            var contents = document.querySelectorAll('.content');
+            contents.forEach(function (content) {
+                content.classList.remove('active');
+            });
+            // 显示选中的内容
+            document.getElementById(divId).classList.add('active');
+
+            // 移除所有li的is-active类
+            var tabs = document.querySelectorAll('.tabs li');
+            tabs.forEach(function (tab) {
+                tab.classList.remove('is-active');
+            });
+            // 给当前点击的li添加is-active类
+            element.parentElement.classList.add('is-active');
+        }
+    </script>
+</body>
+
+</html>

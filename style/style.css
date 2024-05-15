@@ -1,33 +1,11 @@
-.map-row {
-    display: flex;
-}
-
-.cell {
-    width: 30px;
-    height: 30px;
-    border: 1px solid black;
-}
-
-.cell.grass {
-    background-color: green;
-}
-
-.cell.water {
-    background-color: blue;
-}
-
-.cell.forest {
-    background-color: darkgreen;
-}
-
-.cell.mountain {
-    background-color: grey;
-}
+/* html::-webkit-scrollbar {
+    display: none;
+} */
 
 .hover-details {
     position: absolute;
-    background-color: white;
-    border: 1px solid #ccc;
+    background-color: #14161a;
+    border: 1px solid #444444;
     padding: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     z-index: 1000;
@@ -50,22 +28,68 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid #ccc;
+    border: 1px solid #202020;
 }
 
 .tile.land {
-    background-color: #aaffaa;
+    background-color: #01470173;
 }
 
 .tile.water {
-    background-color: #aaaaff;
+    background-color: #0000443f;
 }
 
-.hover-details {
-    position: absolute;
-    background-color: white;
-    border: 1px solid #ccc;
-    padding: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    z-index: 1000;
+
+#app {
+    height: 100vh;
+}
+
+.header {
+    height: 40px;
+}
+
+.main {
+    display: flex;
+    height: calc(100vh - 64px);
+}
+
+.sidebar {
+    width: 300px;
+    
+}
+
+.basic {
+    flex: 1;
+    overflow: auto;
+}
+
+.selected-character, .activate-content {
+    height: calc(100% - 30px);
+    margin: 15px;
+    overflow: auto;
+}
+
+/* 对于 Webkit 浏览器（如 Chrome, Safari, Edge） */
+::-webkit-scrollbar {
+    width: 12px;
+    /* 滚动条的宽度 */
+}
+
+::-webkit-scrollbar-track {
+    background: #14161a00;
+    /* 滚动条轨道的背景色 */
+    border-radius: 10px;
+    /* 圆角 */
+}
+
+::-webkit-scrollbar-thumb {
+    background: #3e4249;
+    /* 滚动条的颜色 */
+    border-radius: 10px;
+    /* 圆角 */
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+    /* 鼠标悬停时的颜色 */
 }
