@@ -12,30 +12,27 @@
 
 <body>
 	<div id="app">
-		<div class="header level">
-			<div class="level-left">
+		<div class="header">
+			<nav class="level is-mobile">
 				<div class="level-item">
 					<p>{{ formattedDate }}</p>
 				</div>
-				<div class="level-item"><button class="button is-small" @click="toggleTimer">{{ timer ? '暂停' : '开始'
+				<div class="level-item">
+					<button class="button is-small" @click="toggleTimer">{{ timer ? '暂停' : '开始'
 						}}</button>
 				</div>
-			</div>
-			<div class="level-item">
-				<div class="tabs">
-					<ul>
-						<li :class="{ 'is-active': activeTab === 'Family' }">
-							<a href="javascript:void(0);" @click="showTab('Family')">家庭</a>
-						</li>
-						<li :class="{ 'is-active': activeTab === 'Map' }">
-							<a href="javascript:void(0);" @click="showTab('Map')">地图</a>
-						</li>
-					</ul>
-				</div>
-			</div>
-			<div class="level-right">
+			</nav>
 
 
+			<div class="tabs is-centered">
+				<ul>
+					<li :class="{ 'is-active': activeTab === 'Family' }">
+						<a href="javascript:void(0);" @click="showTab('Family')">家庭</a>
+					</li>
+					<li :class="{ 'is-active': activeTab === 'Map' }">
+						<a href="javascript:void(0);" @click="showTab('Map')">地图</a>
+					</li>
+				</ul>
 			</div>
 		</div>
 
@@ -43,7 +40,7 @@
 			<aside class="sidebar">
 				<!-- 角色栏，显示当前选中的角色详细信息 -->
 				<div v-if="selectedCharacter" class="selected-character box">
-					<p class="title is-5">{{ selectedCharacter.familyName }} {{ selectedCharacter.givenName }}</p>
+					<p class="title is-6">{{ selectedCharacter.familyName }} {{ selectedCharacter.givenName }}</p>
 					<p>出生日期: {{ selectedCharacter.birthDate }}</p>
 					<p>年龄: {{ selectedCharacter.age }}</p>
 					<p>性别: {{ selectedCharacter.gender }}</p>
@@ -127,19 +124,8 @@
 						<p>肥沃度: {{ hoveredTile.fertility.toFixed(0) }}</p>
 					</div>
 				</div>
-
-
 			</div>
-
-			</main>
-
 		</div>
-
-
-
-
-
-
 
 		<script src="script/app.js"></script>
 		<script src="script/UI.js"></script>

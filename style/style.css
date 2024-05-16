@@ -14,12 +14,12 @@
 .map {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 2px;
 }
 
 .row {
     display: flex;
-    gap: 5px;
+    gap: 2px;
 }
 
 .tile {
@@ -29,6 +29,7 @@
     align-items: center;
     justify-content: center;
     border: 1px solid #202020;
+    border-radius: 20%;
 }
 
 .tile.land {
@@ -44,13 +45,9 @@
     height: 100vh;
 }
 
-.header {
-    height: 40px;
-}
-
 .main {
     display: flex;
-    height: calc(100vh - 64px);
+    height: calc(100vh - 95px);
 }
 
 .sidebar {
@@ -71,7 +68,7 @@
 
 /* 对于 Webkit 浏览器（如 Chrome, Safari, Edge） */
 ::-webkit-scrollbar {
-    width: 12px;
+    width: 8px;
     /* 滚动条的宽度 */
 }
 
@@ -90,6 +87,6 @@
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #555;
+    background: #585d66;
     /* 鼠标悬停时的颜色 */
 }
