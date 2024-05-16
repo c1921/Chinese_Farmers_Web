@@ -18,13 +18,8 @@
 					<p>{{ formattedDate }}</p>
 				</div>
 				<div class="level-item">
-					<button class="button is-small" @click="toggleTimer">
-						{{ timer ? '暂停' : '开始' }}
-					</button>
-					<button class="button is-small" @click="setTimerSpeed(1000)" :class="{'is-primary': timerSpeed === 1000}">×1</button>
-					<button class="button is-small" @click="setTimerSpeed(500)" :class="{'is-primary': timerSpeed === 500}">×5</button>
-					<button class="button is-small" @click="setTimerSpeed(100)" :class="{'is-primary': timerSpeed === 100}">×10</button>
-					<button class="button is-small" @click="setTimerSpeed(10)" :class="{'is-primary': timerSpeed === 10}">×100</button>
+					<button class="button is-small" @click="toggleTimer">{{ timer ? '暂停' : '开始'
+						}}</button>
 				</div>
 			</nav>
 

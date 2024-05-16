@@ -17,9 +17,8 @@ new Vue({
 			left: '0px'
 		},
 		map: [],
-		mapSize: 10, // 地图的尺寸，例如10x10
+		mapSize: 21, // 地图的尺寸，例如10x10
 		activeTab: 'Family',
-		timerSpeed: 1000, // 默认速度
 	},
 	methods: {
 		getRandomInt(min, max) {
@@ -111,7 +110,7 @@ new Vue({
 				name: familyName,
 				members: [],
 				land: [],
-				foodStock: this.getRandomInt(2000, 5000), // 初始粮食库存随机值
+				foodStock: 0,
 				get landCount() {
 					return this.land.length;
 				},
@@ -126,36 +125,9 @@ new Vue({
 					this.foodStock += this.foodOutput;
 				},
 				consumeFood() {
-					const dailyConsumption = this.members.length * 5;
+					const dailyConsumption = this.members.length * 2;
 					this.foodStock = Math.max(0, this.foodStock - dailyConsumption);
-				},
-				sellLand() {
-					// 如果粮食库存低于50，开始卖地
-					if (this.foodStock < 50 && this.land.length > 0) {
-						const landToSell = this.land.pop(); // 从土地列表中取出一块土地
-						const landPrice = 20000 * landToSell.fertility * 0.5; // 计算土地价格
-
-						// 找到买家
-						const buyers = this.$root.families.filter(family => {
-							const dailyConsumption = family.members.length * 5;
-							const minFoodRequired = dailyConsumption * 30; // 假设家庭需要至少30天的粮食
-							return family !== this && (family.foodStock - dailyConsumption) >= minFoodRequired;
-						});
-
-						if (buyers.length > 0) {
-							const buyer = buyers[this.$root.getRandomInt(0, buyers.length - 1)]; // 随机选择一个买家
-							buyer.land.push(landToSell); // 将土地添加到买家土地列表
-							landToSell.familyName = buyer.name; // 更新土地归属
-							this.foodStock += landPrice; // 增加粮食库存
-
-							// 更新地图上的土地信息
-							this.map[landToSell.row][landToSell.col].familyName = buyer.name;
-						} else {
-							// 如果没有符合条件的买家，将土地放回土地列表
-							this.land.push(landToSell);
-						}
-					}
-				},
+				}
 			};
 
 			// Generate parents (one male and one female)
@@ -181,7 +153,7 @@ new Vue({
 			return family;
 		},
 		generateFamilies() {
-			this.families = Array.from({ length: 5 }, (_, i) => this.generateFamily(i + 1));
+			this.families = Array.from({ length: 20 }, (_, i) => this.generateFamily(i + 1));
 			this.allocateLand();
 		},
 		generateMap() {
@@ -221,7 +193,6 @@ new Vue({
 				const allocatedLand = landTiles.splice(randomIndex, 1)[0];
 				this.families[familyIndex].land.push(allocatedLand);
 				allocatedLand.familyName = this.families[familyIndex].name;
-				this.map[allocatedLand.row][allocatedLand.col].familyName = this.families[familyIndex].name; // 更新地图上的土地信息
 				familyIndex = (familyIndex + 1) % totalFamilies;
 			}
 		},
@@ -250,14 +221,7 @@ new Vue({
 				clearInterval(this.timer);
 				this.timer = null;
 			} else {
-				this.timer = setInterval(this.updateDate, this.timerSpeed); // 使用 this.timerSpeed
-			}
-		},
-		setTimerSpeed(speed) {
-			this.timerSpeed = speed;
-			if (this.timer) {
-				clearInterval(this.timer);
-				this.timer = setInterval(this.updateDate, this.timerSpeed);
+				this.timer = setInterval(this.updateDate, 1000); // 每秒更新一次日期
 			}
 		},
 		updateDate() {
@@ -272,10 +236,9 @@ new Vue({
 				});
 			}
 
-			// 每天消耗粮食并检查是否需要卖地
+			// 每天消耗粮食
 			this.families.forEach(family => {
 				family.consumeFood();
-				family.sellLand();
 			});
 
 			// Update the age of all characters based on the new current date
