@@ -19,6 +19,8 @@ new Vue({
 		map: [],
 		mapSize: 21, // 地图的尺寸，例如10x10
 		activeTab: 'Family',
+		timerSpeed: 1000, // 默认速度
+		daysUntilNextHarvest: 0, // 距离下次收获的天数
 	},
 	methods: {
 		getRandomInt(min, max) {
@@ -111,6 +113,7 @@ new Vue({
 				members: [],
 				land: [],
 				foodStock: 0,
+				showWarning: false,
 				get landCount() {
 					return this.land.length;
 				},
@@ -216,12 +219,39 @@ new Vue({
 			this.hoverStyle.top = `${event.clientY + 10}px`;
 			this.hoverStyle.left = `${event.clientX + 10}px`;
 		},
+		calculateDaysUntilNextHarvest() {
+			const nextHarvestDate = new Date(this.currentDate.getFullYear(), 6, 1); // 设定下一次收获日期为7月1日
+			if (this.currentDate > nextHarvestDate) {
+				nextHarvestDate.setFullYear(nextHarvestDate.getFullYear() + 1); // 如果当前日期已经过了7月1日，设定下一次的收获日期为下一年
+			}
+			const timeDiff = nextHarvestDate - this.currentDate;
+			const daysUntilNextHarvest = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+			return daysUntilNextHarvest;
+		},
+		updateWarnings() {
+			this.daysUntilNextHarvest = this.calculateDaysUntilNextHarvest();
+			this.families.forEach(family => {
+				const totalConsumption = family.members.length * 2 * this.daysUntilNextHarvest;
+				family.showWarning = totalConsumption > family.foodStock;
+			});
+		},
 		toggleTimer() {
 			if (this.timer) {
 				clearInterval(this.timer);
 				this.timer = null;
 			} else {
-				this.timer = setInterval(this.updateDate, 1000); // 每秒更新一次日期
+				this.timer = setInterval(() => {
+					this.updateDate();
+					this.updateWarnings(); // 每次更新日期后检查并更新警告
+				}, this.timerSpeed); // 使用 this.timerSpeed
+			}
+		},
+
+		setTimerSpeed(speed) {
+			this.timerSpeed = speed;
+			if (this.timer) {
+				clearInterval(this.timer);
+				this.timer = setInterval(this.updateDate, this.timerSpeed);
 			}
 		},
 		updateDate() {

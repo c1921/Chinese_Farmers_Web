@@ -18,8 +18,13 @@
 					<p>{{ formattedDate }}</p>
 				</div>
 				<div class="level-item">
-					<button class="button is-small" @click="toggleTimer">{{ timer ? '暂停' : '开始'
-						}}</button>
+					<button class="button is-small" @click="toggleTimer">
+						{{ timer ? '暂停' : '开始' }}
+					</button>
+					<button class="button is-small" @click="setTimerSpeed(1000)" :class="{'is-primary': timerSpeed === 1000}">×1</button>
+					<button class="button is-small" @click="setTimerSpeed(500)" :class="{'is-primary': timerSpeed === 500}">×5</button>
+					<button class="button is-small" @click="setTimerSpeed(100)" :class="{'is-primary': timerSpeed === 100}">×10</button>
+					<button class="button is-small" @click="setTimerSpeed(10)" :class="{'is-primary': timerSpeed === 10}">×100</button>
 				</div>
 			</nav>
 
@@ -99,6 +104,10 @@
 					<div v-if="activeTab === 'Family'" id="Family">
 						<div v-for="family in families" :key="family.id" class="family box">
 							<p class="title is-6">Family {{ family.name }}</p>
+							<div v-if="family.showWarning" class="tag is-danger">
+								警告：粮食库存不足，可能会在{{ daysUntilNextHarvest }}天内耗尽！
+							</div>
+							<p>家庭土地数量: {{ family.landCount }}</p>
 							<div class="tags">
 								<div class="tag is-hoverable" v-for="character in family.members" :key="character.id"
 									@click="selectCharacter(character)">
