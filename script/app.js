@@ -319,8 +319,16 @@ new Vue({
 
 		// 添加交易记录
 		addTransactionLog(sellingFamily, buyingFamily, land, price) {
-			const logEntry = `${sellingFamily.name} 家庭以 ${price.toFixed(2)} 的价格将土地 (${land.row}, ${land.col}) 卖给了 ${buyingFamily.name} 家庭`;
+			const currentDateStr = this.formatDate(this.currentDate); // 获取当前日期的字符串格式
+			const logEntry = `${currentDateStr}: ${sellingFamily.name} 家庭以 ${price.toFixed(2)} 的价格将土地 (${land.row}, ${land.col}) 卖给了 ${buyingFamily.name} 家庭`;
 			this.transactionLogs.push(logEntry); // 将日志记录添加到数组中
+		},
+		// 格式化日期为字符串的方法
+		formatDate(date) {
+			const year = date.getFullYear();
+			const month = String(date.getMonth() + 1).padStart(2, '0');
+			const day = String(date.getDate()).padStart(2, '0');
+			return `${year}年${month}月${day}日`;
 		},
 		// 更新日期
 		updateDate() {
@@ -357,12 +365,9 @@ new Vue({
 
 	},
 	computed: {
-		// 格式化日期为字符串
+		// 更新后的格式化当前日期的方法
 		formattedDate() {
-			const year = this.currentDate.getFullYear();
-			const month = String(this.currentDate.getMonth() + 1).padStart(2, '0');
-			const day = String(this.currentDate.getDate()).padStart(2, '0');
-			return `${year}年${month}月${day}日`;
+			return this.formatDate(this.currentDate);
 		}
 	},
 	// 在组件挂载时执行
