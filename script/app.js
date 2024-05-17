@@ -24,6 +24,7 @@ new Vue({
 		timerSpeed: 1000, // 定时器速度，默认1000ms
 		daysUntilNextHarvest: 0, // 距离下次收获的天数
 		transactionLogs: [], // 日志记录数组
+		showFamilyInfo: false, // 新增 showFamilyInfo 属性
 	},
 	methods: {
 		// 生成指定范围内的随机整数
@@ -116,7 +117,8 @@ new Vue({
 				parents: [],
 				spouses: [],
 				children: [],
-				family: family
+				family: family,
+				foodIntake: 1,
 			};
 		},
 
@@ -139,19 +141,23 @@ new Vue({
 				get averageFertility() {
 					return Math.floor((this.land.reduce((sum, tile) => sum + tile.fertility, 0) / this.land.length) * 100) / 100 || 0;
 				},
-
-				// 新增计算家庭劳动总值的方法
 				get totalLaborValue() {
 					return this.members.reduce((sum, member) => sum + Number(member.laborValue), 0).toFixed(2);
+				},
+				get totalFoodIntake() {
+					return this.members.reduce((sum, member) => sum + member.foodIntake, 0);
+				},
+				get dailyFoodConsumption() {
+					return this.totalFoodIntake * 2;
 				},
 				updateFoodStock() {
 					this.foodStock += this.annualEarnings; // 每年7月1日将年度收益加入粮食库存
 					this.annualEarnings = 0; // 重置年度收益
 				},
 				consumeFood() {
-					const dailyConsumption = this.members.length * 2;
-					this.foodStock = Math.max(0, this.foodStock - dailyConsumption);
-				}
+					this.foodStock = Math.max(0, this.foodStock - this.dailyFoodConsumption); // 确保库存不会变成负数
+				},
+
 			};
 
 			// 生成父母角色（一个男性和一个女性）
@@ -399,6 +405,10 @@ new Vue({
 		// 切换标签页
 		showTab(tab) {
 			this.activeTab = tab;
+		},
+		selectCharacter(character) {
+			this.selectedCharacter = character;
+			this.showFamilyInfo = false; // 每次选择新角色时重置为显示角色信息
 		},
 
 	},
