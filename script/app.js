@@ -23,6 +23,7 @@ new Vue({
 		activeTab: 'Family', // 当前活跃的标签页
 		timerSpeed: 1000, // 定时器速度，默认1000ms
 		daysUntilNextHarvest: 0, // 距离下次收获的天数
+		transactionLogs: [], // 日志记录数组
 	},
 	methods: {
 		// 生成指定范围内的随机整数
@@ -319,9 +320,7 @@ new Vue({
 		// 添加交易记录
 		addTransactionLog(sellingFamily, buyingFamily, land, price) {
 			const logEntry = `${sellingFamily.name} 家庭以 ${price.toFixed(2)} 的价格将土地 (${land.row}, ${land.col}) 卖给了 ${buyingFamily.name} 家庭`;
-			const logElement = document.createElement('p');
-			logElement.textContent = logEntry;
-			document.getElementById('transaction-log').appendChild(logElement);
+			this.transactionLogs.push(logEntry); // 将日志记录添加到数组中
 		},
 		// 更新日期
 		updateDate() {
@@ -355,7 +354,7 @@ new Vue({
 		showTab(tab) {
 			this.activeTab = tab;
 		},
-		
+
 	},
 	computed: {
 		// 格式化日期为字符串
@@ -372,11 +371,6 @@ new Vue({
 		this.generateMap(); // 生成地图数据
 		this.generateFamilies(); // 生成家庭数据
 		document.addEventListener('mousemove', this.updateHoverPosition); // 监听鼠标移动事件
-		// 创建交易日志界面
-		const transactionLog = document.createElement('div');
-		transactionLog.id = 'transaction-log';
-		transactionLog.classList.add('box');
-		document.body.appendChild(transactionLog);
 	},
 	// 在组件销毁前执行
 	beforeDestroy() {

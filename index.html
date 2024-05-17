@@ -25,6 +25,7 @@
 					<button class="button is-small" @click="setTimerSpeed(500)" :class="{'is-primary': timerSpeed === 500}">×5</button>
 					<button class="button is-small" @click="setTimerSpeed(100)" :class="{'is-primary': timerSpeed === 100}">×10</button>
 					<button class="button is-small" @click="setTimerSpeed(10)" :class="{'is-primary': timerSpeed === 10}">×100</button>
+					<button class="button is-small" @click="setTimerSpeed(1)" :class="{'is-primary': timerSpeed === 1}">×1000</button>
 				</div>
 			</nav>
 
@@ -36,6 +37,9 @@
 					</li>
 					<li :class="{ 'is-active': activeTab === 'Map' }">
 						<a href="javascript:void(0);" @click="showTab('Map')">地图</a>
+					</li>
+					<li :class="{ 'is-active': activeTab === 'Log' }">
+						<a href="javascript:void(0);" @click="showTab('Log')">日志</a>
 					</li>
 				</ul>
 			</div>
@@ -131,6 +135,10 @@
 					<div v-if="hoveredTile" :style="hoverStyle" class="hover-details">
 						<p>归属家庭: {{ hoveredTile.familyName }}</p>
 						<p>肥沃度: {{ hoveredTile.fertility.toFixed(0) }}</p>
+					</div>
+					<!-- 日志 -->
+					<div v-if="activeTab === 'Log'" id="transaction-log" class="log">
+						<p v-for="log in transactionLogs" :key="log">{{ log }}</p>
 					</div>
 				</div>
 			</div>
