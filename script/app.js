@@ -99,6 +99,9 @@ new Vue({
 			const abilitiesWithEffects = this.applyTraitEffects(abilities, traits);
 			const age = this.calculateAge(birthDate, this.currentDate);
 
+			// 计算劳动值
+			const laborValue = 500 * (abilitiesWithEffects.physical.total * 0.2);
+
 			return {
 				id: Math.random().toString(36).substr(2, 9),
 				givenName: givenNames[this.getRandomInt(0, givenNames.length - 1)],
@@ -107,6 +110,7 @@ new Vue({
 				age: age,
 				gender: finalGender === "Male" ? "男" : "女",
 				abilities: abilitiesWithEffects,
+				laborValue: Number(laborValue), // 确保 laborValue 是数值类型
 				traits: traits,
 				familyId: family.id,
 				parents: [],
@@ -115,6 +119,8 @@ new Vue({
 				family: family
 			};
 		},
+
+
 		// 生成家庭数据
 		generateFamily(id) {
 			const familyName = this.familyNames[id - 1];
@@ -125,18 +131,22 @@ new Vue({
 				land: [],
 				foodStock: this.getRandomInt(1000, 30000), // 初始粮食库存
 				showWarning: false,
+				annualEarnings: 0, // 初始化年度收益
+				dailyEarnings: 0, // 初始化每日收益
 				get landCount() {
 					return this.land.length;
 				},
 				get averageFertility() {
 					return Math.floor((this.land.reduce((sum, tile) => sum + tile.fertility, 0) / this.land.length) * 100) / 100 || 0;
 				},
-				get foodOutput() {
-					const totalPhysical = this.members.reduce((sum, member) => sum + member.abilities.physical.total, 0);
-					return this.landCount * this.averageFertility * totalPhysical;
+
+				// 新增计算家庭劳动总值的方法
+				get totalLaborValue() {
+					return this.members.reduce((sum, member) => sum + Number(member.laborValue), 0).toFixed(2);
 				},
 				updateFoodStock() {
-					this.foodStock += this.foodOutput;
+					this.foodStock += this.annualEarnings; // 每年7月1日将年度收益加入粮食库存
+					this.annualEarnings = 0; // 重置年度收益
 				},
 				consumeFood() {
 					const dailyConsumption = this.members.length * 2;
@@ -166,6 +176,9 @@ new Vue({
 
 			return family;
 		},
+
+
+
 		// 生成所有家庭数据
 		generateFamilies() {
 			this.families = Array.from({ length: 5 }, (_, i) => this.generateFamily(i + 1));
@@ -205,8 +218,9 @@ new Vue({
 			while (landTiles.length > 0) {
 				const randomIndex = this.getRandomInt(0, landTiles.length - 1);
 				const allocatedLand = landTiles.splice(randomIndex, 1)[0];
-				this.families[familyIndex].land.push(allocatedLand);
 				allocatedLand.familyName = this.families[familyIndex].name;
+				allocatedLand.laborValueMet = false; // 新增属性
+				this.families[familyIndex].land.push(allocatedLand);
 				familyIndex = (familyIndex + 1) % totalFamilies;
 			}
 		},
@@ -336,10 +350,30 @@ new Vue({
 			newDate.setDate(newDate.getDate() + 1); // 日期加一天
 			this.currentDate = newDate;
 
+			// 每天分配劳动值并计算收益
+			this.families.forEach(family => {
+				let remainingLaborValue = family.totalLaborValue;
+				family.land.sort((a, b) => b.fertility - a.fertility); // 按肥沃度排序
+				family.dailyEarnings = 0;
+
+				family.land.forEach(tile => {
+					if (remainingLaborValue >= 100) {
+						tile.laborValueMet = true;
+						remainingLaborValue -= 100;
+						family.dailyEarnings += (1 * (tile.fertility * 0.2));
+					} else {
+						tile.laborValueMet = false;
+					}
+				});
+
+				family.annualEarnings += family.dailyEarnings;
+			});
+
 			// 每年7月1日增加家庭粮食库存
 			if (this.currentDate.getMonth() === 6 && this.currentDate.getDate() === 1) {
 				this.families.forEach(family => {
-					family.updateFoodStock();
+					family.foodStock += family.annualEarnings;
+					family.annualEarnings = 0; // 重置年度收益
 				});
 			}
 
@@ -357,7 +391,11 @@ new Vue({
 					member.age = this.calculateAge(new Date(member.birthDate.replace(/年|月/g, '-').replace(/日/, '')), this.currentDate);
 				});
 			});
+
+			// 更新警告状态
+			this.updateWarnings();
 		},
+
 		// 切换标签页
 		showTab(tab) {
 			this.activeTab = tab;

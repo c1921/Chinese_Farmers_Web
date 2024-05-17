@@ -71,7 +71,6 @@
 					<hr>
 					<p>家庭土地数量: {{ selectedCharacter.family.landCount }}</p>
 					<p>家庭平均肥沃度: {{ selectedCharacter.family.averageFertility.toFixed(2) }}</p>
-					<p>家庭粮食产出: {{ selectedCharacter.family.foodOutput.toFixed(2) }}</p>
 					<p>家庭粮食库存: {{ selectedCharacter.family.foodStock.toFixed(2) }}</p>
 					<hr>
 
@@ -112,6 +111,9 @@
 								警告：粮食库存不足！
 							</div>
 							<p>家庭土地数量: {{ family.landCount }}</p>
+							<p>家庭劳动总值: {{ family.totalLaborValue }}</p>
+							<p>家庭每日收益: {{ family.dailyEarnings.toFixed(2) }}</p>
+							<p>家庭年度收益: {{ family.annualEarnings.toFixed(2) }}</p>
 							<div class="tags">
 								<div class="tag is-hoverable" v-for="character in family.members" :key="character.id"
 									@click="selectCharacter(character)">
