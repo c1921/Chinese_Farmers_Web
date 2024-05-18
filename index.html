@@ -15,7 +15,7 @@
 <body>
 	<div id="app">
 		<div id="header" class="header">
-			<nav class="level is-mobile">
+			<nav id="time" class="level is-mobile">
 				<div class="level-item">
 					<p>{{ formattedDate }}</p>
 				</div>
@@ -53,7 +53,7 @@
 		</div>
 
 		<div id="main-content" class="main">
-			<aside class="sidebar">
+			<aside class="sidebar-left">
 				<!-- 角色栏，显示当前选中的角色详细信息 -->
 				<div v-if="selectedCharacter && !showFamilyInfo" class="selected-character box">
 					<!--角色信息-->
@@ -108,7 +108,12 @@
 						showFamilyInfo ? '显示角色信息' : '显示家庭信息' }}</button>
 					<hr>
 					<p class="title is-6">Family {{ selectedCharacter.familyName }}</p>
-					<p>家庭土地数量: {{ selectedCharacter.family.landCount }}</p>
+					<p>家庭土地数量:
+						<span
+							:class="{'has-text-danger': selectedCharacter.family.laborMetLandCount < selectedCharacter.family.landCount}">
+							{{ selectedCharacter.family.laborMetLandCount }}
+						</span> / {{ selectedCharacter.family.landCount }}
+					</p>
 					<p>家庭平均肥沃度: {{ selectedCharacter.family.averageFertility.toFixed(0) }}</p>
 					<p>家庭粮食库存: {{ selectedCharacter.family.foodStock.toFixed(0) }}</p>
 					<p>家庭每日粮食消耗: {{ selectedCharacter.family.dailyFoodConsumption.toFixed(0) }}</p>
@@ -123,21 +128,62 @@
 				<div class="activate-content box">
 					<!-- 家庭列表，每个家庭成员只显示名称 -->
 					<div v-if="activeTab === 'Family'" id="Family">
-						<div v-for="family in families" :key="family.id" class="family box">
-							<p class="title is-6">Family {{ family.name }}</p>
-							<div v-if="family.showWarning" class="tag is-danger">
-								警告：粮食库存不足！
+						<div class="family-list">
+							<div v-for="family in families" :key="family.id" class="family">
+								<p class="title is-6">Family {{ family.name }}</p>
+								<div v-if="family.showWarning" class="tag is-danger">
+									警告：粮食库存不足！
+								</div>
+								<div class="level">
+									<div class="level-item">
+										<p>土地:
+											<span
+												:class="{'has-text-danger': family.laborMetLandCount < family.landCount}">
+												{{ family.laborMetLandCount }}
+											</span> / {{ family.landCount }}
+										</p>
+									</div>
+									<div class="level-item">
+										<p>收益: {{ family.annualEarnings.toFixed(0) }}</p>
+									</div>
+									<div class="level-item">
+										<p>粮食: {{ family.foodStock.toFixed(0) }}</p>
+									</div>
+
+								</div>
+
+
+
+								<div class="tags">
+									<div class="tag is-hoverable" v-for="character in family.members"
+										:key="character.id" @click="selectCharacter(character)">
+										{{ character.familyName }} {{ character.givenName }}
+									</div>
+								</div>
+								<hr>
 							</div>
-							<p>家庭土地数量: {{ family.landCount }}</p>
-							<p>家庭年度收益: {{ family.annualEarnings.toFixed(0) }}</p>
-							<p>家庭粮食库存: {{ family.foodStock.toFixed(0) }}</p>
-							<div class="tags">
-								<div class="tag is-hoverable" v-for="character in family.members" :key="character.id"
-									@click="selectCharacter(character)">
-									{{ character.familyName }} {{ character.givenName }}
+						</div>
+						<div class="sidebar-family">
+							<div class="field is-horizontal">
+								<div class="field-label is-normal">
+									<label class="label">排序</label>
+								</div>
+								<div class="field-body">
+									<div class="field is-narrow">
+										<div class="control">
+											<div class="select is-fullwidth">
+												<select v-model="sortOption" @change="sortFamilies">
+													<option value="land">土地</option>
+													<option value="members">人数</option>
+													<option value="foodStock">粮食库存</option>
+												</select>
+											</div>
+										</div>
+									</div>
 								</div>
 							</div>
 						</div>
+
 					</div>
 					<!-- 地图显示 -->
 					<div v-if="activeTab === 'Map'" id="Map" class="map">
@@ -159,6 +205,7 @@
 					</div>
 				</div>
 			</div>
+
 		</div>
 		<div id="footer" class="level is-mobile">
 			<!-- <div class="level-item">
@@ -170,8 +217,8 @@
 					<div class="tag is-hoverable">111</div>
 					<div class="tag is-hoverable">111</div>
 				</div>
-			</div>
-		</div> -->
+			</div> -->
+		</div>
 	</div>
 
 	<script src="script/app.js"></script>

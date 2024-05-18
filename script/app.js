@@ -19,12 +19,13 @@ new Vue({
 			left: '0px'
 		},
 		map: [], // 地图数据
-		mapSize: 10, // 地图尺寸
+		mapSize: 20, // 地图尺寸
 		activeTab: 'Family', // 当前活跃的标签页
 		timerSpeed: 1000, // 定时器速度，默认1000ms
 		daysUntilNextHarvest: 0, // 距离下次收获的天数
 		transactionLogs: [], // 日志记录数组
 		showFamilyInfo: false, // 新增 showFamilyInfo 属性
+		sortOption: 'land', // 默认排序选项
 	},
 	methods: {
 		// 生成指定范围内的随机整数
@@ -138,6 +139,9 @@ new Vue({
 				get landCount() {
 					return this.land.length;
 				},
+				get laborMetLandCount() {
+					return this.land.filter(tile => tile.laborValueMet).length;
+				},
 				get averageFertility() {
 					return Math.floor((this.land.reduce((sum, tile) => sum + tile.fertility, 0) / this.land.length) * 100) / 100 || 0;
 				},
@@ -187,8 +191,9 @@ new Vue({
 
 		// 生成所有家庭数据
 		generateFamilies() {
-			this.families = Array.from({ length: 5 }, (_, i) => this.generateFamily(i + 1));
+			this.families = Array.from({ length: 20 }, (_, i) => this.generateFamily(i + 1));
 			this.allocateLand();
+			this.sortFamilies(); // 在生成和分配土地后立即排序
 		},
 		// 生成地图数据
 		generateMap() {
@@ -215,20 +220,55 @@ new Vue({
 
 			return fertility;
 		},
-		// 分配土地给家庭
+		// 生成并分配土地
 		allocateLand() {
 			const landTiles = this.map.flat().filter(tile => tile.type === 'land');
 			const totalFamilies = this.families.length;
-			let familyIndex = 0;
 
-			while (landTiles.length > 0) {
-				const randomIndex = this.getRandomInt(0, landTiles.length - 1);
-				const allocatedLand = landTiles.splice(randomIndex, 1)[0];
-				allocatedLand.familyName = this.families[familyIndex].name;
-				allocatedLand.laborValueMet = false; // 新增属性
-				this.families[familyIndex].land.push(allocatedLand);
-				familyIndex = (familyIndex + 1) % totalFamilies;
+			// 生成一个正态分布的数组表示每个家庭分配的土地数量
+			const landDistribution = this.generateNormalDistributedLand(totalFamilies, landTiles.length);
+
+			let landIndex = 0;
+			this.families.forEach((family, index) => {
+				const allocatedLandCount = landDistribution[index];
+				for (let i = 0; i < allocatedLandCount; i++) {
+					const allocatedLand = landTiles[landIndex];
+					allocatedLand.familyName = family.name;
+					allocatedLand.laborValueMet = false;
+					family.land.push(allocatedLand);
+					landIndex++;
+				}
+			});
+		},
+
+		// 生成正态分布的土地分配数组
+		generateNormalDistributedLand(familyCount, totalLand) {
+			const landDistribution = [];
+			let totalAllocatedLand = 0;
+
+			while (landDistribution.length < familyCount) {
+				const remainingFamilies = familyCount - landDistribution.length;
+				const remainingLand = totalLand - totalAllocatedLand;
+				const mean = remainingLand / remainingFamilies;
+				const stddev = mean / 3; // 假设标准差为均值的三分之一
+
+				let landForFamily = Math.round(this.generateNormalDistributedValue(mean, stddev));
+				if (landForFamily < 0) landForFamily = 0;
+				if (landForFamily > remainingLand) landForFamily = remainingLand;
+
+				landDistribution.push(landForFamily);
+				totalAllocatedLand += landForFamily;
 			}
+
+			return landDistribution;
+		},
+
+		// 生成正态分布的随机值
+		generateNormalDistributedValue(mean, stddev) {
+			let u1 = Math.random();
+			let u2 = Math.random();
+			let z = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
+			return mean + z * stddev;
 		},
 		// 选择角色
 		selectCharacter(character) {
@@ -348,7 +388,7 @@ new Vue({
 			const year = date.getFullYear();
 			const month = String(date.getMonth() + 1).padStart(2, '0');
 			const day = String(date.getDate()).padStart(2, '0');
-			return `${year}\u00A0年\u00A0${month}\u00A0月\u00A0${day}\u00A0日`;
+			return `${year}年${month}月${day}日`;
 		},
 		// 更新日期
 		updateDate() {
@@ -410,12 +450,33 @@ new Vue({
 			this.selectedCharacter = character;
 			this.showFamilyInfo = false; // 每次选择新角色时重置为显示角色信息
 		},
+		sortFamilies() {
+			if (this.sortOption === 'members') {
+				this.families.sort((a, b) => b.members.length - a.members.length);
+			} else if (this.sortOption === 'land') {
+				this.families.sort((a, b) => b.landCount - a.landCount);
+			} else if (this.sortOption === 'foodStock') {
+				this.families.sort((a, b) => b.foodStock - a.foodStock);
+			}
+		},
 
 	},
 	computed: {
 		// 更新后的格式化当前日期的方法
 		formattedDate() {
 			return this.formatDate(this.currentDate);
+		},
+		sortedFamilies() {
+			return this.families.slice().sort((a, b) => {
+				if (this.sortOption === 'members') {
+					return b.members.length - a.members.length;
+				} else if (this.sortOption === 'land') {
+					return b.landCount - a.landCount;
+				} else if (this.sortOption === 'foodStock') {
+					return b.foodStock - a.foodStock;
+				}
+				return 0;
+			});
 		}
 	},
 	// 在组件挂载时执行

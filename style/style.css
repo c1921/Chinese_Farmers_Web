@@ -2,6 +2,10 @@ html {
     scrollbar-width: none;
 }
 
+#time {
+    padding-top: 10px;
+}
+
 .hover-details {
     position: absolute;
     background-color: #14161a;
@@ -47,13 +51,28 @@ html {
     height: calc(100vh - var(--header-footer-height));
 }
 
-.sidebar {
+.sidebar-left {
     width: 300px;
-    
+
+}
+
+.sidebar-family {
+    margin-left: 30px;
 }
 
 .basic {
     flex: 1;
+}
+
+
+#Family {
+    display: grid;
+    grid-template-columns: auto 250px;
+    height: 100%;
+}
+
+.family-list {
+    height: 100%;
     overflow: auto;
 }
 
@@ -61,7 +80,8 @@ html {
     padding: 0;
 }
 
-.selected-character, .activate-content {
+.selected-character,
+.activate-content {
     height: calc(100% - 30px);
     margin: 15px;
     overflow: auto;
@@ -92,3 +112,6 @@ html {
     /* 鼠标悬停时的颜色 */
 }
 
+.field-label.is-normal {
+    padding-top: 0.5em
+}
