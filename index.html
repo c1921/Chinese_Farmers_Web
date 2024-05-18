@@ -6,13 +6,15 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<title>Chinese Farmer</title>
 	<script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+	<script src="script/style.js"></script>
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css" />
 	<link rel="stylesheet" href="style/style.css" />
+
 </head>
 
 <body>
 	<div id="app">
-		<div class="header">
+		<div id="header" class="header">
 			<nav class="level is-mobile">
 				<div class="level-item">
 					<p>{{ formattedDate }}</p>
@@ -21,11 +23,16 @@
 					<button class="button is-small" @click="toggleTimer">
 						{{ timer ? '暂停' : '开始' }}
 					</button>
-					<button class="button is-small" @click="setTimerSpeed(1000)" :class="{'is-primary': timerSpeed === 1000}">×1</button>
-					<button class="button is-small" @click="setTimerSpeed(500)" :class="{'is-primary': timerSpeed === 500}">×5</button>
-					<button class="button is-small" @click="setTimerSpeed(100)" :class="{'is-primary': timerSpeed === 100}">×10</button>
-					<button class="button is-small" @click="setTimerSpeed(10)" :class="{'is-primary': timerSpeed === 10}">×100</button>
-					<button class="button is-small" @click="setTimerSpeed(1)" :class="{'is-primary': timerSpeed === 1}">×1000</button>
+					<button class="button is-small" @click="setTimerSpeed(1000)"
+						:class="{'is-primary': timerSpeed === 1000}">×1</button>
+					<button class="button is-small" @click="setTimerSpeed(500)"
+						:class="{'is-primary': timerSpeed === 500}">×5</button>
+					<button class="button is-small" @click="setTimerSpeed(100)"
+						:class="{'is-primary': timerSpeed === 100}">×10</button>
+					<button class="button is-small" @click="setTimerSpeed(10)"
+						:class="{'is-primary': timerSpeed === 10}">×100</button>
+					<button class="button is-small" @click="setTimerSpeed(1)"
+						:class="{'is-primary': timerSpeed === 1}">×1000</button>
 				</div>
 			</nav>
 
@@ -45,12 +52,14 @@
 			</div>
 		</div>
 
-		<div class="main">
+		<div id="main-content" class="main">
 			<aside class="sidebar">
 				<!-- 角色栏，显示当前选中的角色详细信息 -->
 				<div v-if="selectedCharacter && !showFamilyInfo" class="selected-character box">
 					<!--角色信息-->
-					<button class="button is-small" @click="showFamilyInfo = !showFamilyInfo">{{ showFamilyInfo ? '显示角色信息' : '显示家庭信息' }}</button>
+					<button class="button is-small sidebar-toggle" @click="showFamilyInfo = !showFamilyInfo">{{
+						showFamilyInfo ? '显示角色信息' : '显示家庭信息' }}</button>
+					<hr>
 					<p class="title is-6">{{ selectedCharacter.familyName }} {{ selectedCharacter.givenName }}</p>
 					<p>出生日期: {{ selectedCharacter.birthDate }}</p>
 					<p>年龄: {{ selectedCharacter.age }}</p>
@@ -71,12 +80,6 @@
 					<p class="tags">特质: <span class="tag is-hoverable" v-for="trait in selectedCharacter.traits"
 							:key="trait.name">{{ trait.name }}</span></p>
 					<hr>
-					<p>家庭土地数量: {{ selectedCharacter.family.landCount }}</p>
-					<p>家庭平均肥沃度: {{ selectedCharacter.family.averageFertility.toFixed(2) }}</p>
-					<p>家庭粮食库存: {{ selectedCharacter.family.foodStock.toFixed(2) }}</p>
-					<p>家庭年度收益: {{ selectedCharacter.family.annualEarnings.toFixed(0) }}</p>
-					<hr>
-
 					<p class="tags">父母: <span class="tag is-hoverable" v-for="parent in selectedCharacter.parents"
 							:key="parent.id">
 							<a href="#" @click="selectCharacter(parent)">{{ parent.familyName }} {{ parent.givenName
@@ -101,15 +104,18 @@
 					</p>
 				</div>
 				<div v-if="showFamilyInfo && selectedCharacter" class="selected-character box">
-					<button class="button is-small" @click="showFamilyInfo = !showFamilyInfo">{{ showFamilyInfo ? '显示角色信息' : '显示家庭信息' }}</button>
+					<button class="button is-small sidebar-toggle" @click="showFamilyInfo = !showFamilyInfo">{{
+						showFamilyInfo ? '显示角色信息' : '显示家庭信息' }}</button>
+					<hr>
 					<p class="title is-6">Family {{ selectedCharacter.familyName }}</p>
 					<p>家庭土地数量: {{ selectedCharacter.family.landCount }}</p>
+					<p>家庭平均肥沃度: {{ selectedCharacter.family.averageFertility.toFixed(0) }}</p>
+					<p>家庭粮食库存: {{ selectedCharacter.family.foodStock.toFixed(0) }}</p>
+					<p>家庭每日粮食消耗: {{ selectedCharacter.family.dailyFoodConsumption.toFixed(0) }}</p>
 					<p>家庭劳动总值: {{ selectedCharacter.family.totalLaborValue }}</p>
 					<p>家庭每日收益: {{ selectedCharacter.family.dailyEarnings.toFixed(0) }}</p>
 					<p>家庭年度收益: {{ selectedCharacter.family.annualEarnings.toFixed(0) }}</p>
-					<p>家庭每日粮食消耗: {{ selectedCharacter.family.dailyFoodConsumption.toFixed(0) }}</p>
 				</div>
-
 			</aside>
 
 			<div class="basic">
@@ -123,10 +129,8 @@
 								警告：粮食库存不足！
 							</div>
 							<p>家庭土地数量: {{ family.landCount }}</p>
-							<p>家庭劳动总值: {{ family.totalLaborValue }}</p>
-							<p>家庭每日收益: {{ family.dailyEarnings.toFixed(0) }}</p>
 							<p>家庭年度收益: {{ family.annualEarnings.toFixed(0) }}</p>
-							<p>家庭每日粮食消耗: {{ family.dailyFoodConsumption.toFixed(0) }}</p>
+							<p>家庭粮食库存: {{ family.foodStock.toFixed(0) }}</p>
 							<div class="tags">
 								<div class="tag is-hoverable" v-for="character in family.members" :key="character.id"
 									@click="selectCharacter(character)">
@@ -156,10 +160,23 @@
 				</div>
 			</div>
 		</div>
+		<div id="footer" class="level is-mobile">
+			<!-- <div class="level-item">
+				<p>123</p>
+			</div>
+			<div class="level-item">
+				<div class="tags">
+					<div class="tag is-hoverable">111</div>
+					<div class="tag is-hoverable">111</div>
+					<div class="tag is-hoverable">111</div>
+				</div>
+			</div>
+		</div> -->
+	</div>
 
-		<script src="script/app.js"></script>
-		<script src="script/UI.js"></script>
-		<script src="https://kit.fontawesome.com/956b802913.js" crossorigin="anonymous"></script>
+	<script src="script/app.js"></script>
+	<script src="script/UI.js"></script>
+	<script src="https://kit.fontawesome.com/956b802913.js" crossorigin="anonymous"></script>
 </body>
 
 </html>

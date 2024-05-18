@@ -348,7 +348,7 @@ new Vue({
 			const year = date.getFullYear();
 			const month = String(date.getMonth() + 1).padStart(2, '0');
 			const day = String(date.getDate()).padStart(2, '0');
-			return `${year}年${month}月${day}日`;
+			return `${year}\u00A0年\u00A0${month}\u00A0月\u00A0${day}\u00A0日`;
 		},
 		// 更新日期
 		updateDate() {
