@@ -26,6 +26,8 @@ new Vue({
 		transactionLogs: [], // 日志记录数组
 		showFamilyInfo: false, // 新增 showFamilyInfo 属性
 		sortOption: 'land', // 默认排序选项
+		weatherCoefficient: 1, // 初始天气系数
+		hoveredFamily: null, // 添加hoveredFamily属性
 	},
 	methods: {
 		// 生成指定范围内的随机整数
@@ -120,6 +122,7 @@ new Vue({
 				children: [],
 				family: family,
 				foodIntake: 1,
+				class: '',
 			};
 		},
 
@@ -132,10 +135,10 @@ new Vue({
 				name: familyName,
 				members: [],
 				land: [],
-				foodStock: this.getRandomInt(1000, 30000), // 初始粮食库存
 				showWarning: false,
 				annualEarnings: 0, // 初始化年度收益
 				dailyEarnings: 0, // 初始化每日收益
+				// 其他属性和方法
 				get landCount() {
 					return this.land.length;
 				},
@@ -161,7 +164,6 @@ new Vue({
 				consumeFood() {
 					this.foodStock = Math.max(0, this.foodStock - this.dailyFoodConsumption); // 确保库存不会变成负数
 				},
-
 			};
 
 			// 生成父母角色（一个男性和一个女性）
@@ -187,12 +189,16 @@ new Vue({
 			return family;
 		},
 
-
-
 		// 生成所有家庭数据
 		generateFamilies() {
 			this.families = Array.from({ length: 20 }, (_, i) => this.generateFamily(i + 1));
 			this.allocateLand();
+			this.families.forEach(family => {
+				// 计算初始粮食库存
+				const baseFoodStock = family.landCount * 100; // 每拥有一块土地增加的粮食库存
+				const fluctuation = baseFoodStock * 0.1; // 上下浮动10%
+				family.foodStock = Math.round(this.getRandomInt(baseFoodStock - fluctuation, baseFoodStock + fluctuation));
+			});
 			this.sortFamilies(); // 在生成和分配土地后立即排序
 		},
 		// 生成地图数据
@@ -238,6 +244,13 @@ new Vue({
 					family.land.push(allocatedLand);
 					landIndex++;
 				}
+				family.members.forEach(member => {
+					if (family.landCount > 20) { // 假设土地数量大于5的家庭成员为地主
+						member.class = '地主';
+					} else {
+						member.class = '平民';
+					}
+				});
 			});
 		},
 
@@ -269,6 +282,13 @@ new Vue({
 			let u2 = Math.random();
 			let z = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
 			return mean + z * stddev;
+		},
+		// 生成天气系数的方法
+		generateWeatherCoefficient() {
+			let coefficient = this.generateNormalDistributedValue(1, 0.5); // 均值为1，标准差为0.5
+			if (coefficient < 0) coefficient = 0;
+			if (coefficient > 2) coefficient = 2;
+			this.weatherCoefficient = coefficient.toFixed(2);
 		},
 		// 选择角色
 		selectCharacter(character) {
@@ -400,27 +420,36 @@ new Vue({
 			this.families.forEach(family => {
 				let remainingLaborValue = family.totalLaborValue;
 				family.land.sort((a, b) => b.fertility - a.fertility); // 按肥沃度排序
+				let totalLandEarnings = 0;
 				family.dailyEarnings = 0;
 
 				family.land.forEach(tile => {
+					let landEarnings = 0;
 					if (remainingLaborValue >= 100) {
 						tile.laborValueMet = true;
 						remainingLaborValue -= 100;
-						family.dailyEarnings += (1 * (tile.fertility * 0.2));
+						landEarnings = 1 * (tile.fertility * 0.2); // 计算土地收益
+						totalLandEarnings += landEarnings;
 					} else {
 						tile.laborValueMet = false;
 					}
 				});
 
+				const weatherImpact = totalLandEarnings * (this.weatherCoefficient - 1);
+				family.dailyEarnings = totalLandEarnings + weatherImpact;
+				family.totalLandEarnings = totalLandEarnings.toFixed(2);
+				family.weatherImpact = weatherImpact.toFixed(2);
+
 				family.annualEarnings += family.dailyEarnings;
 			});
 
-			// 每年7月1日增加家庭粮食库存
+			// 每年7月1日增加家庭粮食库存并更新天气系数
 			if (this.currentDate.getMonth() === 6 && this.currentDate.getDate() === 1) {
 				this.families.forEach(family => {
 					family.foodStock += family.annualEarnings;
 					family.annualEarnings = 0; // 重置年度收益
 				});
+				this.generateWeatherCoefficient(); // 每年更新天气系数
 			}
 
 			// 每天消耗粮食
@@ -458,6 +487,17 @@ new Vue({
 			} else if (this.sortOption === 'foodStock') {
 				this.families.sort((a, b) => b.foodStock - a.foodStock);
 			}
+		},
+		showFamilyDetails(family, event) {
+			this.hoveredFamily = family;
+			this.updateHoverPosition(event);
+		},
+		hideFamilyDetails() {
+			this.hoveredFamily = null;
+		},
+		updateHoverPosition(event) {
+			this.hoverStyle.top = `${event.clientY + 10}px`;
+			this.hoverStyle.left = `${event.clientX + 10}px`;
 		},
 
 	},

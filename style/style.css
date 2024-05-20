@@ -76,6 +76,10 @@ html {
     overflow: auto;
 }
 
+.family .level {
+    min-height: 25px;
+}
+
 #footer {
     padding: 0;
 }
