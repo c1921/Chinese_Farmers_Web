@@ -76,7 +76,7 @@ html {
     overflow: auto;
 }
 
-.family .level {
+.family .cell {
     min-height: 25px;
 }
 

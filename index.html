@@ -134,26 +134,16 @@
 					<div v-if="activeTab === 'Family'" id="Family">
 						<div class="family-list">
 							<div v-for="family in families" :key="family.id" class="family">
-								<div class="level">
-									<div class="level-left">
-										<div class="lecel-item">
-											<p class="title is-6">Family {{ family.name }}</p>
-										</div>
+								<div class="grid">
+									<div class="cell">
+										<p class="title is-6">Family {{ family.name }}</p>
 									</div>
-									<div class="item">
+									<div class="cell">
 										<div v-if="family.showWarning" class="tag is-danger">
 											警告：粮食库存不足！
 										</div>
 									</div>
-									<div class="level-right">
-										<div class="lecel-item">
-
-										</div>
-									</div>
-
 								</div>
-
-
 								<div class="grid">
 									<div class="cell">
 										<p>土地:
@@ -164,22 +154,18 @@
 										</p>
 									</div>
 									<div class="cell">
-										<p>收益: {{ family.annualEarnings.toFixed(0) }}</p>
+										<p>收益: {{ formatNumber(family.annualEarnings) }}</p>
 									</div>
 									<div class="cell">
 										<p @mouseover="showFamilyDetails(family, $event)"
 											@mouseleave="hideFamilyDetails">
-											当日收益: {{ family.dailyEarnings.toFixed(0) }}
+											当日收益: {{ formatNumber(family.dailyEarnings) }}
 										</p>
 									</div>
 									<div class="cell">
-										<p>粮食: {{ family.foodStock.toFixed(0) }}</p>
+										<p>粮食: {{ formatNumber(family.foodStock) }}</p>
 									</div>
-
 								</div>
-
-
-
 								<div class="tags">
 									<div class="tag is-hoverable" v-for="character in family.members"
 										:key="character.id" @click="selectCharacter(character)">

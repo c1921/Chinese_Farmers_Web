@@ -499,7 +499,26 @@ new Vue({
 			this.hoverStyle.top = `${event.clientY + 10}px`;
 			this.hoverStyle.left = `${event.clientX + 10}px`;
 		},
-
+		handleKeyPress(event) {
+			if (event.code === 'Space') {
+				event.preventDefault(); // 阻止默认的空格键滚动行为
+				this.toggleTimer();
+			}
+		},
+		// 数值缩写
+		formatNumber(value) {
+			if (value >= 1e12) {
+				return (value / 1e12).toFixed(1) + 'T';
+			} else if (value >= 1e9) {
+				return (value / 1e9).toFixed(1) + 'B';
+			} else if (value >= 1e6) {
+				return (value / 1e6).toFixed(1) + 'M';
+			} else if (value >= 1e3) {
+				return (value / 1e3).toFixed(1) + 'K';
+			} else {
+				return value.toFixed(0);
+			}
+		},
 	},
 	computed: {
 		// 更新后的格式化当前日期的方法
@@ -525,9 +544,11 @@ new Vue({
 		this.generateMap(); // 生成地图数据
 		this.generateFamilies(); // 生成家庭数据
 		document.addEventListener('mousemove', this.updateHoverPosition); // 监听鼠标移动事件
+		document.addEventListener('keydown', this.handleKeyPress); // 监听键盘按键事件
 	},
 	// 在组件销毁前执行
 	beforeDestroy() {
 		document.removeEventListener('mousemove', this.updateHoverPosition); // 移除鼠标移动事件监听
+		document.removeEventListener('keydown', this.handleKeyPress); // 移除键盘按键事件监听
 	}
 });
