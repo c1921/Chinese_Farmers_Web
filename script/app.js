@@ -24,7 +24,7 @@ new Vue({
 		timerSpeed: 1000, // 定时器速度，默认1000ms
 		daysUntilNextHarvest: 0, // 距离下次收获的天数
 		transactionLogs: [], // 日志记录数组
-		showFamilyInfo: false, // 新增 showFamilyInfo 属性
+		// showFamilyInfo: false, // 新增 showFamilyInfo 属性
 		sortOption: 'land', // 默认排序选项
 		weatherCoefficient: 1, // 初始天气系数
 		hoveredFamily: null, // 添加hoveredFamily属性
@@ -477,7 +477,7 @@ new Vue({
 		},
 		selectCharacter(character) {
 			this.selectedCharacter = character;
-			this.showFamilyInfo = false; // 每次选择新角色时重置为显示角色信息
+			// this.showFamilyInfo = false; // 每次选择新角色时重置为显示角色信息
 		},
 		sortFamilies() {
 			if (this.sortOption === 'members') {
@@ -508,15 +508,15 @@ new Vue({
 		// 数值缩写
 		formatNumber(value) {
 			if (value >= 1e12) {
-				return (value / 1e12).toFixed(1) + 'T';
+				return Math.floor(value / 1e11) / 10 + 'T';
 			} else if (value >= 1e9) {
-				return (value / 1e9).toFixed(1) + 'B';
+				return Math.floor(value / 1e8) / 10 + 'B';
 			} else if (value >= 1e6) {
-				return (value / 1e6).toFixed(1) + 'M';
+				return Math.floor(value / 1e5) / 10 + 'M';
 			} else if (value >= 1e3) {
-				return (value / 1e3).toFixed(1) + 'K';
+				return Math.floor(value / 1e2) / 10 + 'K';
 			} else {
-				return value.toFixed(0);
+				return value.toFixed(2); // 在数值低于 1000 时保留最多两位小数
 			}
 		},
 	},

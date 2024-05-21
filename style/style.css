@@ -44,40 +44,48 @@ html {
     background-color: #0000443f;
 }
 
-
-
 .main {
     display: flex;
     height: calc(100vh - var(--header-footer-height));
 }
 
 .sidebar-left {
-    width: 300px;
-
-}
-
-.sidebar-family {
-    margin-left: 30px;
+    width: 400px;
 }
 
 .basic {
     flex: 1;
 }
 
-
 #Family {
-    display: grid;
-    grid-template-columns: auto 250px;
     height: 100%;
 }
 
+#Family hr {
+    margin-top: 0px;
+}
+
 .family-list {
-    height: 100%;
+    height: calc(100% - var(--form-controls-height) - 24px);
     overflow: auto;
 }
 
 .family .cell {
     min-height: 25px;
+}
+
+.character-bar .box {
+    padding: 15px;
+    margin-bottom: 10px;
+}
+
+.character-relationships {
+    box-shadow: 0 0.25em 0.5em -0.125em hsla(var(--bulma-shadow-h), var(--bulma-shadow-s), var(--bulma-shadow-l), 0.05),
+    0 0px 0 1px hsla(var(--bulma-shadow-h), var(--bulma-shadow-s), var(--bulma-shadow-l), 0.02);
+}
+
+.character-relationships p {
+    margin-bottom: 10px;
 }
 
 #footer {
@@ -91,9 +99,32 @@ html {
     overflow: auto;
 }
 
+.selected-character {
+    /* display: grid; */
+    /* grid-template-columns: auto calc(var(--bulma-hr-height) + var(--bulma-box-padding)) 150px; */
+    margin-right: 0px;
+}
+
+.vertical-hr {
+    display: flex;
+    align-items: center;
+}
+
+.vertical-hr::before {
+    content: "";
+    display: block;
+    width: var(--bulma-hr-height);
+    /* 线条宽度 */
+    height: 100%;
+    /* 线条高度 */
+    background-color: var(--bulma-hr-background-color);
+    /* 线条颜色 */
+
+}
+
 /* 对于 Webkit 浏览器（如 Chrome, Safari, Edge） */
 ::-webkit-scrollbar {
-    width: 10px;
+    width: 8px;
     /* 滚动条的宽度 */
 }
 
